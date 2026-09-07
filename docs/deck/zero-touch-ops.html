@@ -103,7 +103,7 @@ h1{font:800 24px/1.1 var(--display);letter-spacing:-.03em;margin:0 0 3px;text-wr
 .fact .fig .of{font-size:17px;color:var(--muted);font-weight:600;letter-spacing:-.01em}
 .fact p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2);max-width:34ch}
 
-.groups{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:26px 46px}
+.groups{display:grid;grid-template-columns:1fr;gap:26px 46px}
 .grp{min-width:0}
 .grp > h3{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
   color:var(--muted);margin:0 0 2px;padding-bottom:9px;border-bottom:1px solid var(--line)}
@@ -188,6 +188,9 @@ svg{width:100%;height:auto;display:block}
 .keys{margin:0;font:500 11.5px/1 var(--mono);color:var(--edge);letter-spacing:.02em}
 kbd{color:var(--muted)}
 
+@media (min-width:780px){.groups{grid-template-columns:repeat(2,1fr)}}
+/* Six groups, so three columns fill both rows exactly. */
+@media (min-width:1180px){.groups{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:900px){
   .facts{grid-template-columns:1fr}
   .deck{padding:16px 14px 20px}
@@ -369,19 +372,19 @@ kbd{color:var(--muted)}
     <g id="e_b_j" class="eg proven"><path d="M316,360 L316,330" marker-end="url(#ah)"/></g>
     <g id="e_b_h" class="eg proven"><path d="M114,360 L114,330" marker-end="url(#ah)"/></g>
 
-    <text class="lbl" id="l_h_j" x="213"  y="267" text-anchor="middle">raised</text>
-    <text class="lbl" id="l_j_s" x="415"  y="267" text-anchor="middle">labelled</text>
-    <text class="lbl" id="l_s_w" x="617"  y="267" text-anchor="middle">leased</text>
-    <text class="lbl" id="l_w_p" x="819"  y="267" text-anchor="middle">gather</text>
-    <text class="lbl" id="l_p_r" x="1021" y="267" text-anchor="middle">ask once</text>
-    <text class="lbl" id="l_r_g" x="1223" y="267" text-anchor="middle">propose</text>
+    <text class="lbl" id="l_h_j" x="213"  y="226" text-anchor="middle">raised</text>
+    <text class="lbl" id="l_j_s" x="415"  y="226" text-anchor="middle">labelled</text>
+    <text class="lbl" id="l_s_w" x="617"  y="226" text-anchor="middle">leased</text>
+    <text class="lbl" id="l_w_p" x="819"  y="226" text-anchor="middle">gather</text>
+    <text class="lbl" id="l_p_r" x="1021" y="226" text-anchor="middle">ask once</text>
+    <text class="lbl" id="l_r_g" x="1223" y="226" text-anchor="middle">propose</text>
     <text class="lbl" id="l_c_p" x="800"  y="202" text-anchor="middle">pack()</text>
     <text class="lbl" id="l_d_p" x="944"  y="202" text-anchor="start">only if asked</text>
     <text class="lbl" id="l_g_f" x="1316" y="370" text-anchor="end">runbook matched</text>
     <text class="lbl" id="l_g_e" x="1110" y="370" text-anchor="end">nothing matches</text>
     <text class="lbl" id="l_f_o" x="1079" y="450" text-anchor="middle">applied</text>
     <text class="lbl" id="l_e_o" x="1079" y="546" text-anchor="middle">handed over</text>
-    <text class="lbl" id="l_o_b" x="500"  y="352" text-anchor="middle">durable outbox — reserve, send, then re-read before closing</text>
+    <text class="lbl" id="l_o_b" x="500"  y="354" text-anchor="middle">durable outbox — reserve, send, then re-read before closing</text>
 
     <!-- evidence band -->
     <g class="nd" id="n_corpus"><rect x="620" y="74" width="190" height="84" rx="11"/>
