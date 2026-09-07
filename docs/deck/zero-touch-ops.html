@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ZTO Framework</title>
+<style>
+  :root{
+    --bg:#080d1a; --bg2:#0d1424; --panel:#151d33; --line:#25314f;
+    --ink:#eef2fb; --muted:#8f9dbe;
+    --accent:#38bdf8; --ok:#34d399; --deny:#fb7185;
+    --tech:#7dd3fc; --model:#c084fc; --fix:#fbbf24;
+    --edge:#38466b; --dim:.20;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--ink);
+    background:
+      radial-gradient(1200px 600px at 78% -8%, rgba(56,189,248,.10), transparent 60%),
+      radial-gradient(900px 500px at 12% 108%, rgba(192,132,252,.08), transparent 60%),
+      var(--bg);
+    font:16px/1.55 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  .wrap{max-width:1560px;margin:0 auto;padding:22px 26px 30px}
+  header{display:flex;align-items:flex-start;gap:22px;flex-wrap:wrap;margin-bottom:16px}
+  h1{font-size:27px;margin:0 0 6px;letter-spacing:-.022em;font-weight:700}
+  .sub{margin:0;font-size:15px;font-weight:650;color:var(--model);letter-spacing:.005em}
+  .spacer{flex:1}
+  .controls{display:flex;align-items:center;gap:9px}
+  button{
+    font:inherit;font-size:14px;color:var(--ink);background:var(--panel);
+    border:1px solid var(--line);border-radius:10px;padding:10px 15px;cursor:pointer;
+    transition:border-color .18s,background .18s,transform .08s;
+  }
+  button:hover{border-color:var(--accent);background:#1a2440}
+  button:active{transform:translateY(1px)}
+  button.primary{background:var(--accent);border-color:var(--accent);color:#04121f;font-weight:680}
+  button.primary:hover{background:#5cc9fa}
+  .count{color:var(--muted);font-variant-numeric:tabular-nums;font-size:14px;min-width:62px;text-align:center}
+  .stage{
+    background:linear-gradient(180deg,var(--bg2),#0a1120);
+    border:1px solid var(--line);border-radius:20px;padding:10px 14px 6px;
+    box-shadow:0 24px 70px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.03);
+  }
+  svg{width:100%;height:auto;display:block}
+
+  .nd rect{fill:var(--panel);stroke:var(--edge);stroke-width:1.6;
+    transition:stroke .3s,opacity .3s,filter .3s,fill .3s}
+  .nd text{fill:var(--ink);font-size:14px;font-weight:640;letter-spacing:.002em}
+  .nd text.s{fill:var(--muted);font-size:11.5px;font-weight:500}
+  .nd text.tech{fill:var(--tech);font-size:10.5px;font-weight:700;letter-spacing:.04em}
+  .nd{opacity:var(--dim);transition:opacity .38s}
+  /* Already covered: still readable, so the audience keeps the whole thread in view.
+     Declared before .on so the current step always wins on equal specificity. */
+  .nd.seen{opacity:1}
+  /* The opening map: everything legible at once, distinct from both "covered" and
+     "not reached yet", so the build that follows still reads as a build. */
+  .nd.preview{opacity:.55}
+  .nd.on{opacity:1}
+  .nd.on rect{stroke:var(--accent);stroke-width:2.6;
+    filter:drop-shadow(0 0 18px color-mix(in srgb,var(--accent) 50%,transparent))}
+  .nd.ok.on rect{stroke:var(--ok);filter:drop-shadow(0 0 18px color-mix(in srgb,var(--ok) 50%,transparent))}
+  .nd.deny.on rect{stroke:var(--deny);filter:drop-shadow(0 0 18px color-mix(in srgb,var(--deny) 50%,transparent))}
+
+  .nd.model rect{stroke:var(--model);stroke-width:3;
+    fill:color-mix(in srgb,var(--model) 20%,var(--panel));
+    filter:drop-shadow(0 0 12px color-mix(in srgb,var(--model) 34%,transparent))}
+  .nd.model.on rect{stroke-width:3.4;fill:color-mix(in srgb,var(--model) 30%,var(--panel));
+    filter:drop-shadow(0 0 28px color-mix(in srgb,var(--model) 75%,transparent))}
+  .nd.model text.tech{fill:var(--model);font-size:11px}
+
+  .nd.fix rect{stroke:var(--fix);stroke-width:3;
+    fill:color-mix(in srgb,var(--fix) 17%,var(--panel));
+    filter:drop-shadow(0 0 12px color-mix(in srgb,var(--fix) 30%,transparent))}
+  .nd.fix.on rect{stroke-width:3.4;fill:color-mix(in srgb,var(--fix) 27%,var(--panel));
+    filter:drop-shadow(0 0 28px color-mix(in srgb,var(--fix) 72%,transparent))}
+  .nd.fix text.tech{fill:var(--fix);font-size:11px}
+
+  .eg{fill:none;stroke:var(--edge);stroke-width:2;opacity:.18;transition:opacity .38s,stroke .38s}
+  .eg.seen{opacity:.9;stroke:var(--edge)}
+  .eg.preview{opacity:.4;stroke:var(--edge)}
+  .eg.on{opacity:1;stroke:var(--accent);stroke-width:2.4}
+  .eg.deny.on{stroke:var(--deny)}
+  .eg.ok.on{stroke:var(--ok)}
+  .eg.fixline.on{stroke:var(--fix)}
+  .lbl{fill:var(--muted);font-size:11.5px;opacity:0;transition:opacity .38s}
+  .lbl.seen{opacity:.75}
+  .lbl.on{opacity:1;fill:var(--ink)}
+  .pkt{fill:var(--accent);opacity:0;filter:drop-shadow(0 0 10px var(--accent))}
+  .band{fill:rgba(255,255,255,.014);stroke:var(--line);stroke-width:1;stroke-dasharray:6 6}
+  .bandtxt{fill:var(--muted);font-size:11px;letter-spacing:.11em;text-transform:uppercase;font-weight:650}
+
+
+  /* --- page 1: technology, grouped by what it is for --- */
+  .techpage{padding:22px 18px 26px}
+  .techpage h2{margin:0 0 22px;font-size:19px;font-weight:650;letter-spacing:-.01em;color:var(--muted)}
+  .sect{margin:0 0 20px}
+  .sect > .head{font-size:10.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin:0 0 11px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px 30px}
+  .t{display:flex;gap:12px;align-items:flex-start}
+  .t .dot{width:9px;height:9px;border-radius:50%;margin-top:6px;flex:0 0 9px;background:var(--accent)}
+  .t.ai .dot{background:var(--model)}
+  .t.fix .dot{background:var(--fix)}
+  .t.store .dot{background:var(--ok)}
+  .t.ext .dot{background:var(--deny)}
+  .t .name{font-size:16px;font-weight:700;letter-spacing:-.012em;margin:0 0 3px}
+  .t .why{margin:0;font-size:13.5px;line-height:1.45;color:#c6d0e6}
+  .bar{height:5px;background:var(--line);border-radius:4px;overflow:hidden;margin:18px 0 0}
+  .bar i{display:block;height:100%;border-radius:4px;
+    background:linear-gradient(90deg,var(--accent),var(--model));width:0;transition:width .42s}
+  .hint{color:var(--muted);font-size:12.5px;margin-top:12px}
+  kbd{background:var(--panel);border:1px solid var(--line);border-bottom-width:2px;
+    border-radius:5px;padding:1px 6px;font:12px ui-monospace,monospace;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>ZTO Framework</h1>
+    <p class="sub">AI runs in 1 of 10 steps. The other 9 are deterministic and incur no model charge.</p>
+  </div>
+  <div class="spacer"></div>
+  <div class="controls">
+    <button id="prev" title="Previous (←)">‹ Back</button>
+    <span class="count" id="count">1 / 13</span>
+    <button id="next" title="Next (→)">Next ›</button>
+    <button id="play" class="primary" title="Play / pause (space)">▶ Play</button>
+  </div>
+</header>
+
+<div class="stage">
+<div class="techpage" id="techpage" hidden>
+  <h2>What it is built on, and why</h2>
+  <div class="sect"><p class="head">Where work comes from</p><div class="row">
+    <div class="t ext"><span class="dot"></span><div><p class="name">BMC Helix ITSM</p><p class="why">Where incidents are raised. Nothing here is automatic.</p></div></div>
+    <div class="t ext"><span class="dot"></span><div><p class="name">Jira Cloud</p><p class="why">A person labels a ticket. That label is the consent.</p></div></div>
+  </div></div>
+  <div class="sect"><p class="head">What it looks at</p><div class="row">
+    <div class="t "><span class="dot"></span><div><p class="name">Knowledge graph</p><p class="why">The same ticket always returns the same evidence.</p></div></div>
+    <div class="t ext"><span class="dot"></span><div><p class="name">Dynatrace</p><p class="why">Watches the estate, and only when we ask it to.</p></div></div>
+  </div></div>
+  <div class="sect"><p class="head">How it decides</p><div class="row">
+    <div class="t "><span class="dot"></span><div><p class="name">LangGraph</p><p class="why">Investigation repeats until it finds a cause, or gives up.</p></div></div>
+    <div class="t ai"><span class="dot"></span><div><p class="name">Copilot SDK</p><p class="why">The only AI. It reads the evidence and suggests — nothing more.</p></div></div>
+  </div></div>
+  <div class="sect"><p class="head">What it may change</p><div class="row">
+    <div class="t fix"><span class="dot"></span><div><p class="name">Runbook registry</p><p class="why">It can only run repairs we approved in advance.</p></div></div>
+  </div></div>
+  <div class="sect"><p class="head">What it runs on</p><div class="row">
+    <div class="t store"><span class="dot"></span><div><p class="name">PostgreSQL</p><p class="why">One database holds everything. Two servers can share it safely.</p></div></div>
+    <div class="t "><span class="dot"></span><div><p class="name">OpenTelemetry</p><p class="why">Its own metrics, sent anywhere without changing code.</p></div></div>
+    <div class="t "><span class="dot"></span><div><p class="name">Python and uv</p><p class="why">The build stops AI ever reaching the core.</p></div></div>
+  </div></div>
+</div>
+
+<svg id="svg" viewBox="0 0 1440 762" role="img" aria-label="ZTO pipeline">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="var(--edge)"/>
+    </marker>
+  </defs>
+
+  <rect class="band" x="24" y="48" width="1392" height="126" rx="14"/>
+  <text class="bandtxt" x="40" y="40">Evidence — read only</text>
+
+  <rect class="band" x="24" y="208" width="1392" height="132" rx="14"/>
+  <text class="bandtxt" x="40" y="200">Control loop — AI only where marked ◆</text>
+
+  <rect class="band" x="24" y="382" width="1392" height="196" rx="14"/>
+  <text class="bandtxt" x="40" y="374">Outcome — one path changes the estate ⚙</text>
+
+  <rect class="band" x="24" y="610" width="1392" height="126" rx="14"/>
+  <text class="bandtxt" x="40" y="602">Self-observability — every step above is recorded</text>
+
+  <!-- pipeline -->
+  <g id="e_h_j" class="eg"><path d="M190,274 L234,274" marker-end="url(#ah)"/></g>
+  <g id="e_j_s" class="eg"><path d="M392,274 L436,274" marker-end="url(#ah)"/></g>
+  <g id="e_s_w" class="eg"><path d="M594,274 L638,274" marker-end="url(#ah)"/></g>
+  <g id="e_w_p" class="eg"><path d="M796,274 L840,274" marker-end="url(#ah)"/></g>
+  <g id="e_p_r" class="eg"><path d="M998,274 L1042,274" marker-end="url(#ah)"/></g>
+  <g id="e_r_g" class="eg"><path d="M1200,274 L1244,274" marker-end="url(#ah)"/></g>
+  <g id="e_c_p" class="eg"><path d="M705,162 L880,226" marker-end="url(#ah)"/></g>
+  <g id="e_d_p" class="eg"><path d="M920,162 L920,226" marker-end="url(#ah)"/></g>
+
+  <!-- the fork: gate to repair, gate to escalated -->
+  <g id="e_g_o" class="eg fixline"><path d="M1290,322 L1290,400" marker-end="url(#ah)"/></g>
+  <g id="e_g_e" class="eg deny"><path d="M1244,322 L1108,352 L1108,530 L1150,530" marker-end="url(#ah)"/></g>
+
+  <!-- the join: both outcomes are reported on the ticket -->
+  <g id="e_f_o" class="eg fixline"><path d="M1150,438 L1040,462" marker-end="url(#ah)"/></g>
+  <g id="e_e_o" class="eg deny"><path d="M1150,530 L1040,508" marker-end="url(#ah)"/></g>
+
+  <!-- write-back -->
+  <g id="e_o_j" class="eg ok"><path d="M760,489 L660,489 L660,352 L313,352 L313,322" marker-end="url(#ah)"/></g>
+
+  <text class="lbl" id="l_h_j" x="212" y="262" text-anchor="middle">raise</text>
+  <text class="lbl" id="l_j_s" x="414" y="262" text-anchor="middle">poll</text>
+  <text class="lbl" id="l_s_w" x="616" y="262" text-anchor="middle">claim</text>
+  <text class="lbl" id="l_w_p" x="818" y="262" text-anchor="middle">fetch</text>
+  <text class="lbl" id="l_p_r" x="1020" y="262" text-anchor="middle">ask</text>
+  <text class="lbl" id="l_r_g" x="1222" y="262" text-anchor="middle">propose</text>
+  <text class="lbl" id="l_c_p" x="770" y="200" text-anchor="middle">pack()</text>
+  <text class="lbl" id="l_g_o" x="1310" y="366" text-anchor="start">runbook matched</text>
+  <text class="lbl" id="l_g_e" x="1096" y="366" text-anchor="end">no idea what to do</text>
+  <text class="lbl" id="l_f_o" x="1090" y="437" text-anchor="middle">reported</text>
+  <text class="lbl" id="l_e_o" x="1090" y="545" text-anchor="middle">reported</text>
+  <text class="lbl" id="l_o_j" x="500" y="344" text-anchor="middle">durable outbox — reserve, send, then re-read before closing</text>
+
+  <!-- evidence -->
+  <g class="nd" id="n_corpus"><rect x="610" y="78" width="190" height="84" rx="12"/>
+    <text x="705" y="106" text-anchor="middle">Knowledge graph</text>
+    <text class="s" x="705" y="126" text-anchor="middle">3 months of real incidents</text>
+    <text class="tech" x="705" y="150" text-anchor="middle">PostgreSQL</text></g>
+  <g class="nd" id="n_dt"><rect x="830" y="78" width="180" height="84" rx="12"/>
+    <text x="920" y="106" text-anchor="middle">Dynatrace</text>
+    <text class="s" x="920" y="126" text-anchor="middle">optional live evidence</text>
+    <text class="tech" x="920" y="150" text-anchor="middle">read-only</text></g>
+
+  <!-- pipeline boxes -->
+  <g class="nd" id="n_helix"><rect x="32" y="226" width="158" height="96" rx="13"/>
+    <text x="111" y="254" text-anchor="middle">Helix ticket</text>
+    <text class="s" x="111" y="275" text-anchor="middle">incident raised</text>
+    <text class="tech" x="111" y="301" text-anchor="middle">BMC Helix ITSM</text></g>
+  <g class="nd" id="n_jira"><rect x="234" y="226" width="158" height="96" rx="13"/>
+    <text x="313" y="254" text-anchor="middle">Jira ticket</text>
+    <text class="s" x="313" y="275" text-anchor="middle">labelled for automation</text>
+    <text class="tech" x="313" y="301" text-anchor="middle">Jira Cloud</text></g>
+  <g class="nd" id="n_sched"><rect x="436" y="226" width="158" height="96" rx="13"/>
+    <text x="515" y="254" text-anchor="middle">Scheduler</text>
+    <text class="s" x="515" y="275" text-anchor="middle">qualifies, then claims it</text>
+    <text class="tech" x="515" y="301" text-anchor="middle">PostgreSQL</text></g>
+  <g class="nd" id="n_worker"><rect x="638" y="226" width="158" height="96" rx="13"/>
+    <text x="717" y="254" text-anchor="middle">Worker</text>
+    <text class="s" x="717" y="275" text-anchor="middle">investigates on its own</text>
+    <text class="tech" x="717" y="301" text-anchor="middle">LangGraph loop</text></g>
+  <g class="nd" id="n_pack"><rect x="840" y="226" width="158" height="96" rx="13"/>
+    <text x="919" y="254" text-anchor="middle">Evidence pack</text>
+    <text class="s" x="919" y="275" text-anchor="middle">only what it can cite</text>
+    <text class="tech" x="919" y="301" text-anchor="middle">Graph retrieval</text></g>
+  <g class="nd model" id="n_reason"><rect x="1042" y="226" width="158" height="96" rx="13"/>
+    <text x="1121" y="254" text-anchor="middle">◆ Reasoner</text>
+    <text class="s" x="1121" y="275" text-anchor="middle">proposes a likely cause</text>
+    <text class="tech" x="1121" y="301" text-anchor="middle">AI MODEL · Copilot SDK</text></g>
+  <g class="nd deny" id="n_gate"><rect x="1244" y="226" width="158" height="96" rx="13"/>
+    <text x="1323" y="254" text-anchor="middle">Authorisation gate</text>
+    <text class="s" x="1323" y="275" text-anchor="middle">proves it or refuses</text>
+    <text class="tech" x="1323" y="301" text-anchor="middle">Runbook policy</text></g>
+
+  <!-- outcomes: fork, then join on the ticket -->
+  <g class="nd fix" id="n_fix"><rect x="1150" y="400" width="250" height="76" rx="13"/>
+    <text x="1275" y="428" text-anchor="middle">⚙ Repair applied</text>
+    <text class="s" x="1275" y="448" text-anchor="middle">a declared runbook, executed</text>
+    <text class="tech" x="1275" y="468" text-anchor="middle">Trusted runbook</text></g>
+  <g class="nd deny" id="n_esc"><rect x="1150" y="492" width="250" height="76" rx="13"/>
+    <text x="1275" y="520" text-anchor="middle">Escalated</text>
+    <text class="s" x="1275" y="540" text-anchor="middle">hands it to a human</text>
+    <text class="tech" x="1275" y="560" text-anchor="middle">Jira</text></g>
+  <g class="nd ok" id="n_out"><rect x="760" y="446" width="280" height="86" rx="13"/>
+    <text x="900" y="476" text-anchor="middle">Assessment comment</text>
+    <text class="s" x="900" y="496" text-anchor="middle">posted either way, on the ticket</text>
+    <text class="tech" x="900" y="518" text-anchor="middle">Jira · durable outbox</text></g>
+
+  <!-- self-observability -->
+  <g id="e_l_o" class="eg"><path d="M500,675 L640,675" marker-end="url(#ah)"/></g>
+  <g id="e_o_d" class="eg"><path d="M860,675 L1000,675" marker-end="url(#ah)"/></g>
+  <text class="lbl" id="l_l_o" x="570" y="665" text-anchor="middle">project</text>
+  <text class="lbl" id="l_o_d" x="930" y="665" text-anchor="middle">allowlisted only</text>
+
+  <g class="nd" id="n_ledger"><rect x="300" y="634" width="200" height="82" rx="12"/>
+    <text x="400" y="662" text-anchor="middle">Event ledger</text>
+    <text class="s" x="400" y="682" text-anchor="middle">every step recorded</text>
+    <text class="tech" x="400" y="704" text-anchor="middle">PostgreSQL</text></g>
+  <g class="nd" id="n_otel"><rect x="640" y="634" width="220" height="82" rx="12"/>
+    <text x="750" y="662" text-anchor="middle">Telemetry exporter</text>
+    <text class="s" x="750" y="682" text-anchor="middle">metrics and traces</text>
+    <text class="tech" x="750" y="704" text-anchor="middle">OpenTelemetry · OTLP</text></g>
+  <g class="nd" id="n_dta"><rect x="1000" y="634" width="220" height="82" rx="12"/>
+    <text x="1110" y="662" text-anchor="middle">Dynatrace</text>
+    <text class="s" x="1110" y="682" text-anchor="middle">dashboards, alerts, audit</text>
+    <text class="tech" x="1110" y="704" text-anchor="middle">separate tenant</text></g>
+
+  <circle id="pkt" class="pkt" r="7" cx="0" cy="0"/>
+</svg>
+</div>
+
+<div class="bar"><i id="bar"></i></div>
+<p class="hint"><kbd>space</kbd> play/pause · <kbd>←</kbd> <kbd>→</kbd> step · <kbd>r</kbd> restart · <kbd>f</kbd> full screen</p>
+</div>
+
+<script>
+const STEPS = [
+ {t:"tech", on:[], eg:null, page:true},
+ {t:"overview", on:[], eg:null, all:true},
+ {t:"raised", on:["n_helix","n_jira"], eg:"e_h_j"},
+ {t:"admitted", on:["n_jira","n_sched"], eg:"e_j_s"},
+ {t:"claimed", on:["n_sched","n_worker"], eg:"e_s_w"},
+ {t:"evidence", on:["n_worker","n_pack","n_corpus","n_dt"], eg:"e_w_p", extra:["e_c_p","e_d_p"]},
+ {t:"ai", on:["n_pack","n_reason"], eg:"e_p_r"},
+ {t:"gate", on:["n_reason","n_gate"], eg:"e_r_g"},
+ {t:"escalate", on:["n_gate","n_esc"], eg:"e_g_e"},
+ {t:"repair", on:["n_gate","n_fix"], eg:"e_g_o"},
+ {t:"writeback", on:["n_fix","n_esc","n_out","n_jira"], eg:"e_f_o", extra:["e_e_o","e_o_j"]},
+ {t:"telemetry", on:["n_ledger","n_otel","n_dta"], eg:"e_l_o", extra:["e_o_d"]},
+ // The closing frame. Everything covered, in one uniform state, with nothing glowing —
+ // so the slide you leave up during questions shows the whole system rather than
+ // whichever step happened to be last.
+ {t:"complete", on:[], eg:null, done:true}
+];
+
+const $ = s => document.querySelector(s);
+const svg = $("#svg"), pkt = $("#pkt");
+let i = 0, playing = false, timer = null, raf = null;
+
+function clear(){
+  svg.querySelectorAll(".nd,.eg,.lbl").forEach(el=>el.classList.remove("on","seen","preview"));
+  if(raf) cancelAnimationFrame(raf);
+  pkt.style.opacity = 0;
+}
+
+function flyAlong(edgeId){
+  const g = document.getElementById(edgeId); if(!g) return;
+  const p = g.querySelector("path"); if(!p) return;
+  const len = p.getTotalLength(); const dur = Math.min(1600, 440 + len*1.6);
+  let t0 = null;
+  pkt.style.opacity = 1;
+  function frame(ts){
+    if(t0===null) t0 = ts;
+    const k = Math.min(1, (ts-t0)/dur);
+    const pt = p.getPointAtLength(k*len);
+    pkt.setAttribute("cx", pt.x); pkt.setAttribute("cy", pt.y);
+    if(k<1){ raf = requestAnimationFrame(frame); } else { pkt.style.opacity = 0; }
+  }
+  raf = requestAnimationFrame(frame);
+}
+
+function edgesOf(step){ return [step.eg, ...(step.extra||[])].filter(Boolean); }
+
+function render(){
+  clear();
+  const page = STEPS[i].page === true;
+  $("#techpage").hidden = !page;
+  svg.hidden = page;
+  if(page){
+    $("#count").textContent = (i+1)+" / "+STEPS.length;
+    $("#bar").style.width = ((i+1)/STEPS.length*100)+"%";
+    return;
+  }
+  // The story accumulates. Recomputed from step 0 every time, so stepping backwards
+  // or jumping with ?step= gives the same picture as arriving there forwards.
+  for(let k = 0; k < i; k++){
+    STEPS[k].on.forEach(id => document.getElementById(id)?.classList.add("seen"));
+    edgesOf(STEPS[k]).forEach(id=>{
+      document.getElementById(id)?.classList.add("seen");
+      document.getElementById("l"+id.slice(1))?.classList.add("seen");
+    });
+  }
+  const s = STEPS[i];
+  if(s.done){
+    svg.querySelectorAll(".nd,.eg,.lbl").forEach(el=>el.classList.add("seen"));
+  }
+  if(s.all){
+    // The opening frame: the whole system readable at once, before the walk begins.
+    svg.querySelectorAll(".nd,.eg").forEach(el=>el.classList.add("preview"));
+  }
+  s.on.forEach(id => document.getElementById(id)?.classList.add("on"));
+  edgesOf(s).forEach(id=>{
+    document.getElementById(id)?.classList.add("on");
+    document.getElementById("l"+id.slice(1))?.classList.add("on");
+  });
+  $("#count").textContent = (i+1)+" / "+STEPS.length;
+  $("#bar").style.width = ((i+1)/STEPS.length*100)+"%";
+  if(s.eg) setTimeout(()=>flyAlong(s.eg), 230);
+}
+
+function go(n){ i = (n+STEPS.length)%STEPS.length; render(); }
+function stop(){ playing=false; clearInterval(timer); $("#play").textContent="▶ Play"; }
+function start(){
+  playing=true; $("#play").textContent="❚❚ Pause";
+  timer = setInterval(()=>{ if(i===STEPS.length-1){ stop(); return; } go(i+1); }, 5200);
+}
+
+$("#next").onclick = ()=>{ stop(); go(i+1); };
+$("#prev").onclick = ()=>{ stop(); go(i-1); };
+$("#play").onclick = ()=> playing ? stop() : (go(i===STEPS.length-1?0:i), start());
+addEventListener("keydown", e=>{
+  if(e.key===" "){ e.preventDefault(); $("#play").click(); }
+  else if(e.key==="ArrowRight"){ stop(); go(i+1); }
+  else if(e.key==="ArrowLeft"){ stop(); go(i-1); }
+  else if(e.key==="r"||e.key==="R"){ stop(); go(0); }
+  else if(e.key==="f"||e.key==="F"){
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+});
+const q = new URLSearchParams(location.search).get("step");
+if(q && !isNaN(+q)) i = Math.max(0, Math.min(STEPS.length-1, (+q)-1));
+render();
+</script>
+</body>
+</html>
