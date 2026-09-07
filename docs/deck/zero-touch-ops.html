@@ -90,40 +90,37 @@ h1{font:800 24px/1.1 var(--display);letter-spacing:-.03em;margin:0 0 3px;text-wr
   overflow:hidden;
 }
 
-/* ---- slide 1: the stack -------------------------------------------- */
-.s1{padding:30px 34px 34px}
+/* ---- slide 1: the stack --------------------------------------------
+   Five stages, read left to right, in the same order slide 2 walks them. Ruled
+   columns rather than cards: the sequence is the structure, so nothing else
+   needs to carry a border. */
+.s1{padding:34px 38px 30px}
 .s1 .eyebrow{font:600 10.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
-  color:var(--muted);margin:0 0 16px}
+  color:var(--muted);margin:0 0 30px}
 
-.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:0 0 30px}
-.fact{background:var(--panel-2);padding:16px 20px 18px}
-.fact .fig{font:800 30px/1 var(--display);letter-spacing:-.035em;color:var(--signal);
-  font-variant-numeric:tabular-nums;display:block;margin-bottom:7px}
-.fact .fig .of{font-size:17px;color:var(--muted);font-weight:600;letter-spacing:-.01em}
-.fact p{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2);max-width:34ch}
+.stages{display:grid;grid-template-columns:1fr;gap:30px 0}
+.st{padding:0 30px;border-left:1px solid var(--line);min-width:0}
+.st:first-child{border-left:0;padding-left:0}
+.st .num{display:block;font:800 34px/1 var(--display);letter-spacing:-.04em;
+  color:var(--edge);font-variant-numeric:tabular-nums;margin:0 0 14px}
+.st h3{font:700 17px/1.25 var(--display);letter-spacing:-.02em;color:var(--ink);
+  margin:0 0 10px;text-wrap:balance}
+.st p{margin:0 0 16px;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
+.st ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:7px}
+.st li{font:500 11px/1 var(--mono);letter-spacing:.01em;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:6px 10px;white-space:nowrap}
+/* The one model call and the two things that may change the estate are the only
+   items on this slide that carry colour. */
+.st li.ai{color:var(--model);border-color:color-mix(in srgb,var(--model) 45%,transparent);
+  background:color-mix(in srgb,var(--model) 12%,transparent)}
+.st li.act{color:var(--signal);border-color:color-mix(in srgb,var(--signal) 42%,transparent);
+  background:color-mix(in srgb,var(--signal) 10%,transparent)}
 
-.groups{display:grid;grid-template-columns:1fr;gap:26px 46px}
-.grp{min-width:0}
-.grp > h3{font:600 10.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;
-  color:var(--muted);margin:0 0 2px;padding-bottom:9px;border-bottom:1px solid var(--line)}
-.grp > ul{list-style:none;margin:0;padding:0}
-.grp li{display:flex;gap:13px;align-items:flex-start;padding:13px 0;border-bottom:1px solid #16212C}
-.grp li:last-child{border-bottom:0}
-.grp li .role{width:8px;height:8px;border-radius:2px;margin-top:6px;flex:0 0 8px;
-  background:var(--edge);transform:rotate(45deg)}
-.grp li.ai .role{background:var(--model);box-shadow:0 0 12px color-mix(in srgb,var(--model) 60%,transparent)}
-.grp li.act .role{background:var(--signal);box-shadow:0 0 12px color-mix(in srgb,var(--signal) 55%,transparent)}
-.grp li.keep .role{background:var(--proven)}
-.grp li.ext .role{background:var(--refused)}
-.grp .name{font:500 13.5px/1.2 var(--mono);letter-spacing:-.01em;color:var(--ink);margin:0 0 5px}
-.grp .why{margin:0;font-size:13px;line-height:1.5;color:var(--ink-2)}
-.grp .why em{font-style:normal;color:var(--model);font-weight:500}
-
-.legend{display:flex;gap:22px;flex-wrap:wrap;margin:30px 0 0;padding-top:18px;
-  border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
-.legend span{display:flex;align-items:center;gap:8px}
-.legend i{width:7px;height:7px;border-radius:2px;transform:rotate(45deg);display:block}
+.facts{display:flex;flex-wrap:wrap;gap:10px 34px;margin:34px 0 0;padding-top:20px;
+  border-top:1px solid var(--line)}
+.facts span{font-size:13px;color:var(--muted)}
+.facts b{font:800 15px/1 var(--display);color:var(--signal);letter-spacing:-.02em;
+  font-variant-numeric:tabular-nums;margin-right:5px}
 
 /* entrance: staggered, but from a visible resting state — never parked invisible */
 .reveal{animation:rise .5s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:var(--d,0s)}
@@ -188,13 +185,20 @@ svg{width:100%;height:auto;display:block}
 .keys{margin:0;font:500 11.5px/1 var(--mono);color:var(--edge);letter-spacing:.02em}
 kbd{color:var(--muted)}
 
-@media (min-width:780px){.groups{grid-template-columns:repeat(2,1fr)}}
-/* Six groups, so three columns fill both rows exactly. */
-@media (min-width:1180px){.groups{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:720px){
+  .stages{grid-template-columns:repeat(2,1fr);gap:34px 0}
+  .st:nth-child(odd){border-left:0;padding-left:0}
+}
+/* Five stages sit in one row only when there is room for all of them. */
+@media (min-width:1150px){
+  .stages{grid-template-columns:repeat(5,1fr);gap:0}
+  .st:nth-child(odd){border-left:1px solid var(--line);padding-left:30px}
+  .st:first-child{border-left:0;padding-left:0}
+}
 @media (max-width:900px){
-  .facts{grid-template-columns:1fr}
   .deck{padding:16px 14px 20px}
-  .s1{padding:22px 20px 26px}
+  .s1{padding:24px 20px 26px}
+  .st{padding:0;border-left:0}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001s !important;transition-duration:.001s !important}
@@ -229,106 +233,50 @@ kbd{color:var(--muted)}
 
   <!-- ============================ SLIDE 1 ============================ -->
   <section class="s1" id="s1" hidden>
-    <p class="eyebrow reveal" style="--d:.02s">What it is built on, and why that answer</p>
+    <p class="eyebrow reveal" style="--d:.02s">What it is built on — in the order it runs</p>
 
-    <div class="facts reveal" style="--d:.08s">
-      <div class="fact">
-        <span class="fig">1<span class="of"> of 10</span></span>
-        <p>Steps in the pipeline that call a language model. The other nine are ordinary code and cost nothing per run.</p>
+    <div class="stages">
+      <div class="st reveal" style="--d:.08s">
+        <span class="num">1</span>
+        <h3>Take the work</h3>
+        <p>A person labels a ticket. That label is the only way in — ZTO never creates its own work.</p>
+        <ul><li>Jira Cloud</li><li>BMC Helix ITSM</li></ul>
       </div>
-      <div class="fact">
-        <span class="fig">0</span>
-        <p>Changes it can make to the estate without a runbook someone declared and approved in advance.</p>
+
+      <div class="st reveal" style="--d:.16s">
+        <span class="num">2</span>
+        <h3>Gather the evidence</h3>
+        <p>Three months of resolved incidents, queried by rule. Live estate readings only if the investigation asks.</p>
+        <ul><li>PostgreSQL 17</li><li>Dynatrace</li></ul>
       </div>
-      <div class="fact">
-        <span class="fig">2</span>
-        <p>Independent signals required before an incident may be called resolved. One source is never enough.</p>
+
+      <div class="st reveal" style="--d:.24s">
+        <span class="num">3</span>
+        <h3>Work out the cause</h3>
+        <p>One model call, on evidence it is allowed to cite. It proposes; it cannot act.</p>
+        <ul><li>LangGraph</li><li class="ai">◆ Copilot SDK</li></ul>
+      </div>
+
+      <div class="st reveal" style="--d:.32s">
+        <span class="num">4</span>
+        <h3>Decide what may happen</h3>
+        <p>Only repairs we declared in advance, and only while the condition still holds. Otherwise a human gets it.</p>
+        <ul><li class="act">Runbook registry</li><li class="act">Authorisation gate</li></ul>
+      </div>
+
+      <div class="st reveal" style="--d:.40s">
+        <span class="num">5</span>
+        <h3>Prove it happened</h3>
+        <p>Every step is recorded as it happens, and the metrics are a projection of that record.</p>
+        <ul><li>Event ledger</li><li>OpenTelemetry</li></ul>
       </div>
     </div>
 
-    <div class="groups">
-      <div class="grp reveal" style="--d:.16s">
-        <h3>Where the work comes from</h3>
-        <ul>
-          <li class="ext"><span class="role"></span><div>
-            <p class="name">BMC Helix ITSM</p>
-            <p class="why">Operations raises the incident here, as they already do. Nothing about that changes.</p></div></li>
-          <li class="ext"><span class="role"></span><div>
-            <p class="name">Jira Cloud</p>
-            <p class="why">A person adds the automation label. That label is the consent — ZTO never creates its own work.</p></div></li>
-        </ul>
-      </div>
-
-      <div class="grp reveal" style="--d:.22s">
-        <h3>What it is allowed to look at</h3>
-        <ul>
-          <li><span class="role"></span><div>
-            <p class="name">Knowledge graph</p>
-            <p class="why">Three months of resolved incidents, queried by rule. The same ticket returns the same evidence every time.</p></div></li>
-          <li class="ext"><span class="role"></span><div>
-            <p class="name">Dynatrace</p>
-            <p class="why">Live estate readings, pulled only when the investigation asks. Read-only, always.</p></div></li>
-        </ul>
-      </div>
-
-      <div class="grp reveal" style="--d:.28s">
-        <h3>How it reaches a conclusion</h3>
-        <ul>
-          <li><span class="role"></span><div>
-            <p class="name">LangGraph</p>
-            <p class="why">Holds the investigation loop: gather, check, gather again — until there is a cause, or the budget runs out.</p></div></li>
-          <li class="ai"><span class="role"></span><div>
-            <p class="name">GitHub Copilot SDK</p>
-            <p class="why"><em>The only model in the system.</em> It reads the evidence pack and proposes a cause. It cannot act on it.</p></div></li>
-        </ul>
-      </div>
-
-      <div class="grp reveal" style="--d:.34s">
-        <h3>What it may actually change</h3>
-        <ul>
-          <li class="act"><span class="role"></span><div>
-            <p class="name">Runbook registry</p>
-            <p class="why">The model's proposal is matched against repairs we declared. No match, no action — the ticket goes to a human with the evidence.</p></div></li>
-          <li class="act"><span class="role"></span><div>
-            <p class="name">Authorisation gate</p>
-            <p class="why">Re-checks the runbook's own condition against a fresh estate snapshot. A stale snapshot is a refusal.</p></div></li>
-        </ul>
-      </div>
-
-      <div class="grp reveal" style="--d:.40s">
-        <h3>What it runs on</h3>
-        <ul>
-          <li class="keep"><span class="role"></span><div>
-            <p class="name">PostgreSQL 17</p>
-            <p class="why">One database holds the ledger, the leases and the outbox, so several servers can share the work safely.</p></div></li>
-          <li class="keep"><span class="role"></span><div>
-            <p class="name">OpenTelemetry / OTLP</p>
-            <p class="why">Its own metrics and traces, projected from the ledger and sent wherever you already look.</p></div></li>
-          <li><span class="role"></span><div>
-            <p class="name">Python 3.13 · uv</p>
-            <p class="why">A build-time boundary check fails the build if model code ever reaches the deterministic core.</p></div></li>
-        </ul>
-      </div>
-
-      <div class="grp reveal" style="--d:.46s">
-        <h3>Why this shape, not another</h3>
-        <ul>
-          <li><span class="role"></span><div>
-            <p class="name">Ports and adapters</p>
-            <p class="why">Every outside system sits behind a port, so Helix, Jira or the broker can be swapped without touching the decision logic.</p></div></li>
-          <li class="keep"><span class="role"></span><div>
-            <p class="name">Transactional outbox</p>
-            <p class="why">Reserve, send, then re-read before closing. A crash mid-write leaves a ticket duplicated in no state at all.</p></div></li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="legend reveal" style="--d:.52s">
-      <span><i style="background:var(--model)"></i> the one model call</span>
-      <span><i style="background:var(--signal)"></i> can change the estate</span>
-      <span><i style="background:var(--proven)"></i> durability and evidence</span>
-      <span><i style="background:var(--refused)"></i> system we do not own</span>
-      <span><i style="background:var(--edge)"></i> internal, deterministic</span>
+    <div class="facts reveal" style="--d:.48s">
+      <span><b>1 of 10</b> steps calls a model</span>
+      <span><b>0</b> changes without a declared runbook</span>
+      <span><b>2</b> independent signals before resolved</span>
+      <span><b>1</b> database, shared safely by every server</span>
     </div>
   </section>
 
