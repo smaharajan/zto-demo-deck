@@ -29,9 +29,9 @@
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
 }
 *{box-sizing:border-box}
-html{height:100%}
+html,body{height:100%}
 body{
-  margin:0;min-height:100%;color:var(--ink);
+  margin:0;color:var(--ink);overflow:hidden;
   background:
     radial-gradient(1100px 620px at 84% -12%, rgba(242,162,60,.07), transparent 62%),
     radial-gradient(900px 540px at 8% 112%, rgba(169,139,250,.06), transparent 62%),
@@ -39,7 +39,11 @@ body{
   font:400 16px/1.55 var(--body);
   -webkit-font-smoothing:antialiased;
 }
-.deck{max-width:1580px;margin:0 auto;padding:20px 26px 26px;display:flex;flex-direction:column;gap:16px}
+/* One slide, one screen. The stage takes whatever the rails leave, and each slide
+   fills the stage rather than sitting in the top half of it. */
+.deck{height:100%;max-width:1620px;margin:0 auto;padding:18px 26px 20px;
+  display:flex;flex-direction:column;gap:14px}
+.rail{flex:0 0 auto}
 
 /* ---- header rail ---------------------------------------------------- */
 .rail{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
@@ -84,51 +88,49 @@ h1{font:800 24px/1.1 var(--display);letter-spacing:-.03em;margin:0 0 3px;text-wr
 
 /* ---- stage ---------------------------------------------------------- */
 .stage{
+  flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
   background:linear-gradient(178deg,var(--panel-2),#070C12);
   border:1px solid var(--line);border-radius:18px;
   box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.028);
   overflow:hidden;
 }
+.s1,.s2{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+[hidden]{display:none !important}
 
 /* ---- slide 1: the stack --------------------------------------------
-   Five stages, read left to right, in the same order slide 2 walks them. Ruled
-   columns rather than cards: the sequence is the structure, so nothing else
-   needs to carry a border. */
-.s1{padding:34px 38px 30px}
-.s1 .eyebrow{font:600 10.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
-  color:var(--muted);margin:0 0 30px}
+   A headline, then the five stages in the order slide 2 walks them. Ruled columns
+   rather than cards: the sequence is the structure, so nothing else needs a border.
+   Each column is the technology and one line about it — the prose headings came off
+   because five of them read as a second deck competing with slide 2. */
+.s1{padding:34px 40px 26px;justify-content:center}
+.s1 .eyebrow{font:600 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 30px;flex:0 0 auto}
+.lede{font:700 clamp(22px,2.1vw,31px)/1.28 var(--display);letter-spacing:-.028em;
+  color:var(--ink);margin:0 0 34px;max-width:30ch;text-wrap:balance;flex:0 0 auto}
+.lede em{font-style:normal;color:var(--signal)}
 
-.stages{display:grid;grid-template-columns:1fr;gap:30px 0}
-.st{padding:0 30px;border-left:1px solid var(--line);min-width:0}
+.stages{flex:0 0 auto;display:grid;grid-template-columns:1fr;gap:28px 0}
+.st{display:flex;flex-direction:column;padding:0 30px;
+  border-left:1px solid var(--line);min-width:0}
 .st:first-child{border-left:0;padding-left:0}
-.st .num{display:block;font:800 34px/1 var(--display);letter-spacing:-.04em;
-  color:var(--edge);font-variant-numeric:tabular-nums;margin:0 0 14px}
-.st h3{font:700 17px/1.25 var(--display);letter-spacing:-.02em;color:var(--ink);
-  margin:0 0 10px;text-wrap:balance}
-.st p{margin:0 0 16px;font-size:13.5px;line-height:1.55;color:var(--ink-2)}
-.st ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:7px}
-.st li{font:500 11px/1 var(--mono);letter-spacing:.01em;color:var(--muted);
-  border:1px solid var(--line);border-radius:999px;padding:6px 10px;white-space:nowrap}
-/* The one model call and the two things that may change the estate are the only
-   items on this slide that carry colour. */
-.st li.ai{color:var(--model);border-color:color-mix(in srgb,var(--model) 45%,transparent);
-  background:color-mix(in srgb,var(--model) 12%,transparent)}
-.st li.act{color:var(--signal);border-color:color-mix(in srgb,var(--signal) 42%,transparent);
-  background:color-mix(in srgb,var(--signal) 10%,transparent)}
-
-.facts{display:flex;flex-wrap:wrap;gap:10px 34px;margin:34px 0 0;padding-top:20px;
-  border-top:1px solid var(--line)}
-.facts span{font-size:13px;color:var(--muted)}
-.facts b{font:800 15px/1 var(--display);color:var(--signal);letter-spacing:-.02em;
-  font-variant-numeric:tabular-nums;margin-right:5px}
+.st .num{display:block;font:800 clamp(30px,2.9vw,44px)/1 var(--display);letter-spacing:-.04em;
+  color:var(--edge);font-variant-numeric:tabular-nums;margin:0 0 14px;flex:0 0 auto}
+.st ul{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-direction:column;
+  gap:3px;min-height:66px;flex:0 0 auto}
+.st p{margin:0;font-size:clamp(13px,1.02vw,15px);line-height:1.6;color:var(--ink-2);
+  text-wrap:balance}
+.st li{font:700 clamp(17px,1.5vw,22px)/1.3 var(--display);letter-spacing:-.022em;
+  color:var(--ink);white-space:nowrap}
+/* The one model call is the only item on this slide that carries colour. */
+.st li.ai{color:var(--model)}
 
 /* entrance: staggered, but from a visible resting state — never parked invisible */
 .reveal{animation:rise .5s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:var(--d,0s)}
 @keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
 
 /* ---- slide 2: the flow ---------------------------------------------- */
-.s2{padding:12px 16px 4px}
-svg{width:100%;height:auto;display:block}
+.s2{padding:14px 18px 8px}
+svg{flex:1 1 auto;min-height:0;width:100%;height:100%;display:block}
 
 .band{fill:rgba(255,255,255,.012);stroke:var(--line);stroke-width:1;stroke-dasharray:5 6}
 .bandtxt{fill:var(--muted);font:600 10.5px var(--mono);letter-spacing:.15em;text-transform:uppercase}
@@ -185,20 +187,20 @@ svg{width:100%;height:auto;display:block}
 .keys{margin:0;font:500 11.5px/1 var(--mono);color:var(--edge);letter-spacing:.02em}
 kbd{color:var(--muted)}
 
-@media (min-width:720px){
-  .stages{grid-template-columns:repeat(2,1fr);gap:34px 0}
+/* Five stages sit in one row only when there is room for all of them. */
+@media (min-width:1080px){.stages{grid-template-columns:repeat(5,1fr);gap:0}}
+@media (min-width:640px) and (max-width:1079px){
+  .stages{grid-template-columns:repeat(2,1fr);gap:30px 0}
   .st:nth-child(odd){border-left:0;padding-left:0}
 }
-/* Five stages sit in one row only when there is room for all of them. */
-@media (min-width:1150px){
-  .stages{grid-template-columns:repeat(5,1fr);gap:0}
-  .st:nth-child(odd){border-left:1px solid var(--line);padding-left:30px}
-  .st:first-child{border-left:0;padding-left:0}
-}
-@media (max-width:900px){
-  .deck{padding:16px 14px 20px}
+/* Below that, and on a short screen, let the page scroll rather than crush it. */
+@media (max-width:639px),(max-height:520px){
+  html,body{height:auto}
+  body{overflow:auto}
+  .deck{height:auto;padding:16px 14px 20px}
   .s1{padding:24px 20px 26px}
   .st{padding:0;border-left:0}
+  svg{height:auto}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001s !important;transition-duration:.001s !important}
@@ -233,50 +235,38 @@ kbd{color:var(--muted)}
 
   <!-- ============================ SLIDE 1 ============================ -->
   <section class="s1" id="s1" hidden>
-    <p class="eyebrow reveal" style="--d:.02s">What it is built on — in the order it runs</p>
+    <p class="eyebrow reveal" style="--d:.02s">The stack — in the order it runs</p>
 
     <div class="stages">
       <div class="st reveal" style="--d:.08s">
         <span class="num">1</span>
-        <h3>Take the work</h3>
-        <p>A person labels a ticket. That label is the only way in — ZTO never creates its own work.</p>
         <ul><li>Jira Cloud</li><li>BMC Helix ITSM</li></ul>
+        <p>A person labels a ticket. That label is the only way in.</p>
       </div>
 
       <div class="st reveal" style="--d:.16s">
         <span class="num">2</span>
-        <h3>Gather the evidence</h3>
-        <p>Three months of resolved incidents, queried by rule. Live estate readings only if the investigation asks.</p>
-        <ul><li>PostgreSQL 17</li><li>Dynatrace</li></ul>
+        <ul><li>PostgreSQL 17</li></ul>
+        <p>Three months of resolved incidents, queried by rule.</p>
       </div>
 
       <div class="st reveal" style="--d:.24s">
         <span class="num">3</span>
-        <h3>Work out the cause</h3>
-        <p>One model call, on evidence it is allowed to cite. It proposes; it cannot act.</p>
         <ul><li>LangGraph</li><li class="ai">◆ Copilot SDK</li></ul>
+        <p>One model call, on evidence it is allowed to cite.</p>
       </div>
 
       <div class="st reveal" style="--d:.32s">
         <span class="num">4</span>
-        <h3>Decide what may happen</h3>
-        <p>Only repairs we declared in advance, and only while the condition still holds. Otherwise a human gets it.</p>
-        <ul><li class="act">Runbook registry</li><li class="act">Authorisation gate</li></ul>
+        <ul><li>Python 3.12</li></ul>
+        <p>Deterministic code decides what may run. The model never does.</p>
       </div>
 
       <div class="st reveal" style="--d:.40s">
         <span class="num">5</span>
-        <h3>Prove it happened</h3>
-        <p>Every step is recorded as it happens, and the metrics are a projection of that record.</p>
-        <ul><li>Event ledger</li><li>OpenTelemetry</li></ul>
+        <ul><li>OpenTelemetry</li><li>Dynatrace</li></ul>
+        <p>Every step recorded in Postgres, then projected as metrics and traces.</p>
       </div>
-    </div>
-
-    <div class="facts reveal" style="--d:.48s">
-      <span><b>1 of 10</b> steps calls a model</span>
-      <span><b>0</b> changes without a declared runbook</span>
-      <span><b>2</b> independent signals before resolved</span>
-      <span><b>1</b> database, shared safely by every server</span>
     </div>
   </section>
 
