@@ -215,7 +215,7 @@ kbd{color:var(--muted)}
       <span class="mark">ZTO</span>
       <div>
         <h1>Zero-Touch Operations</h1>
-        <p class="thesis">A model proposes. A gate proves. <b>Nine of the ten steps never call one.</b></p>
+        <p class="thesis">A model proposes. A gate proves. <b>Ten of its eleven hops never call one.</b></p>
       </div>
     </div>
     <div class="spacer"></div>
@@ -258,14 +258,14 @@ kbd{color:var(--muted)}
 
       <div class="st reveal" style="--d:.32s">
         <span class="num">4</span>
-        <ul><li>Python 3.12</li></ul>
-        <p>Deterministic code decides what may run. The model never does.</p>
+        <ul><li>Python 3.12</li><li>Relay</li></ul>
+        <p>Eleven named hops, each a plugin seam. Deterministic code decides what may run. The model never does.</p>
       </div>
 
       <div class="st reveal" style="--d:.40s">
         <span class="num">5</span>
         <ul><li>OpenTelemetry</li><li>Dynatrace</li></ul>
-        <p>Every step recorded in Postgres, then projected as metrics and traces.</p>
+        <p>Every hop recorded in Postgres, then projected as metrics and one <code>relay.*</code> span per hop.</p>
       </div>
     </div>
   </section>
@@ -362,7 +362,7 @@ kbd{color:var(--muted)}
     <g class="nd act" id="n_gate"><rect x="1247" y="232" width="158" height="94" rx="12"/>
       <text class="t" x="1326" y="262" text-anchor="middle">Authorisation gate</text>
       <text class="s" x="1326" y="282" text-anchor="middle">proves it, or refuses</text>
-      <text class="k" x="1326" y="306" text-anchor="middle">runbook policy</text></g>
+      <text class="k" x="1326" y="306" text-anchor="middle">runbook · change</text></g>
 
     <!-- outcome -->
     <g class="nd act" id="n_fix"><rect x="1155" y="402" width="250" height="76" rx="12"/>
@@ -427,7 +427,7 @@ const FRAMES = [
   {slide:2, on:["n_pack","n_reason"], eg:"e_p_r",
    cap:"<b>The one model call.</b> Copilot reads the pack and proposes a cause. It has no way to act on it, and nothing downstream trusts it yet."},
   {slide:2, on:["n_reason","n_gate"], eg:"e_r_g",
-   cap:"<b>Proved, not believed.</b> The proposal is matched against the declared runbooks, then re-checked against a fresh estate snapshot."},
+   cap:"<b>Proved, not believed.</b> The proposal is matched against the declared runbooks, then re-checked against a fresh estate snapshot. Nothing runs past an emergency stop, the hourly cap, or a change that is not approved."},
   {slide:2, on:["n_gate","n_fix"], eg:"e_g_f",
    cap:"<b>Repair applied.</b> A runbook matched and its condition held, so it ran. Two independent signals must agree before this is called resolved."},
   {slide:2, on:["n_gate","n_esc"], eg:"e_g_e",
@@ -435,7 +435,7 @@ const FRAMES = [
   {slide:2, on:["n_fix","n_esc","n_out","n_jira","n_helix"], eg:"e_f_o", extra:["e_e_o","e_o_b","e_b_j","e_b_h"],
    cap:"<b>Written back.</b> Either outcome gets the same treatment: an assessment comment on Jira and on Helix. The description is never touched."},
   {slide:2, on:["n_ledger","n_otel","n_dta"], eg:"e_l_o", extra:["e_o_d"],
-   cap:"<b>Recorded as it happened.</b> Every step above wrote to an append-only ledger; the metrics are a projection of it, not a second source of truth."},
+   cap:"<b>Recorded as it happened.</b> Every hop above wrote to an append-only ledger. Metrics and one <code>relay.*</code> span per hop are projected from it, not a second source of truth."},
   {slide:2, done:true, on:[],
    cap:"<b>One consent, one model call, one gate, one durable receipt.</b> Everything else is ordinary, testable code."}
 ];
