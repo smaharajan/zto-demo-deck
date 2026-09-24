@@ -225,7 +225,7 @@ kbd{color:var(--muted)}
     </nav>
     <div class="controls">
       <button class="btn" id="prev" title="Back (←)">‹</button>
-      <span class="count" id="count">1 / 13</span>
+      <span class="count" id="count">1 / 14</span>
       <button class="btn" id="next" title="Next (→)">›</button>
       <button class="btn play" id="play" title="Play / pause (space)">▶&nbsp; Play</button>
     </div>
@@ -273,7 +273,7 @@ kbd{color:var(--muted)}
   <!-- ============================ SLIDE 2 ============================ -->
   <section class="s2" id="s2" hidden>
   <svg id="svg" viewBox="0 0 1440 780" role="img"
-       aria-label="How a ticket becomes an outcome: Helix to Jira, admitted, claimed, evidence assembled, one model call, an authorisation gate, then either a declared repair or an escalation — both reported back on the ticket.">
+       aria-label="How a ticket becomes an outcome through eleven Relay hops: admit, dispatch, investigate with one model call, plan, gate, then execute and verify or escalate, publish and close, with learn and export alongside.">
     <defs>
       <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
         <path d="M0,0 L10,5 L0,10 z" fill="var(--edge)"/>
@@ -281,122 +281,124 @@ kbd{color:var(--muted)}
     </defs>
 
     <rect class="band" x="24" y="56"  width="1392" height="120" rx="13"/>
-    <text class="bandtxt" x="40" y="46">Evidence · read only</text>
+    <text class="bandtxt" x="40" y="46">Evidence · read only, and learning a person reviews</text>
     <rect class="band" x="24" y="214" width="1392" height="130" rx="13"/>
-    <text class="bandtxt" x="40" y="204">Control loop · the model runs once, at ◆</text>
+    <text class="bandtxt" x="40" y="204">Relay control loop · the model runs once, at ◆</text>
     <rect class="band" x="24" y="382" width="1392" height="206" rx="13"/>
     <text class="bandtxt" x="40" y="372">Outcome · exactly one path changes the estate</text>
     <rect class="band" x="24" y="626" width="1392" height="120" rx="13"/>
-    <text class="bandtxt" x="40" y="616">Self-observability · every step above, recorded as it happened</text>
+    <text class="bandtxt" x="40" y="616">Self-observability · every hop above is a relay.* span</text>
 
-    <!-- pipeline edges -->
-    <g id="e_h_j" class="eg"><path d="M193,279 L233,279" marker-end="url(#ah)"/></g>
-    <g id="e_j_s" class="eg"><path d="M395,279 L435,279" marker-end="url(#ah)"/></g>
-    <g id="e_s_w" class="eg"><path d="M597,279 L637,279" marker-end="url(#ah)"/></g>
-    <g id="e_w_p" class="eg"><path d="M799,279 L839,279" marker-end="url(#ah)"/></g>
-    <g id="e_p_r" class="eg"><path d="M1001,279 L1041,279" marker-end="url(#ah)"/></g>
-    <g id="e_r_g" class="eg"><path d="M1203,279 L1243,279" marker-end="url(#ah)"/></g>
-    <g id="e_c_p" class="eg"><path d="M745,160 L893,228" marker-end="url(#ah)"/></g>
-    <g id="e_d_p" class="eg"><path d="M930,160 L930,228" marker-end="url(#ah)"/></g>
-
-    <!-- the fork -->
-    <g id="e_g_f" class="eg"><path d="M1326,330 L1326,398" marker-end="url(#ah)"/></g>
-    <g id="e_g_e" class="eg refused"><path d="M1265,330 L1120,360 L1120,538 L1151,538" marker-end="url(#ah)"/></g>
-    <!-- the join: both outcomes are written up the same way -->
-    <g id="e_f_o" class="eg"><path d="M1155,440 L1004,468" marker-end="url(#ah)"/></g>
-    <g id="e_e_o" class="eg refused"><path d="M1155,538 L1004,518" marker-end="url(#ah)"/></g>
-    <!-- write-back to both systems of record -->
-    <g id="e_o_b" class="eg proven"><path d="M700,494 L660,494 L660,360 L114,360"/></g>
-    <g id="e_b_j" class="eg proven"><path d="M316,360 L316,330" marker-end="url(#ah)"/></g>
-    <g id="e_b_h" class="eg proven"><path d="M114,360 L114,330" marker-end="url(#ah)"/></g>
-
-    <text class="lbl" id="l_h_j" x="213"  y="226" text-anchor="middle">raised</text>
-    <text class="lbl" id="l_j_s" x="415"  y="226" text-anchor="middle">labelled</text>
-    <text class="lbl" id="l_s_w" x="617"  y="226" text-anchor="middle">leased</text>
-    <text class="lbl" id="l_w_p" x="819"  y="226" text-anchor="middle">gather</text>
-    <text class="lbl" id="l_p_r" x="1021" y="226" text-anchor="middle">ask once</text>
-    <text class="lbl" id="l_r_g" x="1223" y="226" text-anchor="middle">propose</text>
-    <text class="lbl" id="l_c_p" x="800"  y="202" text-anchor="middle">pack()</text>
-    <text class="lbl" id="l_d_p" x="944"  y="202" text-anchor="start">only if asked</text>
-    <text class="lbl" id="l_g_f" x="1316" y="370" text-anchor="end">runbook matched</text>
-    <text class="lbl" id="l_g_e" x="1110" y="370" text-anchor="end">nothing matches</text>
-    <text class="lbl" id="l_f_o" x="1079" y="450" text-anchor="middle">applied</text>
-    <text class="lbl" id="l_e_o" x="1079" y="546" text-anchor="middle">handed over</text>
-    <text class="lbl" id="l_o_b" x="500"  y="354" text-anchor="middle">durable outbox — reserve, send, then re-read before closing</text>
-
-    <!-- evidence band -->
-    <g class="nd" id="n_corpus"><rect x="620" y="74" width="190" height="84" rx="11"/>
-      <text class="t" x="715" y="104" text-anchor="middle">Knowledge graph</text>
-      <text class="s" x="715" y="124" text-anchor="middle">3 months of resolved incidents</text>
-      <text class="k" x="715" y="146" text-anchor="middle">PostgreSQL</text></g>
-    <g class="nd" id="n_dt"><rect x="840" y="74" width="180" height="84" rx="11"/>
-      <text class="t" x="930" y="104" text-anchor="middle">Dynatrace</text>
-      <text class="s" x="930" y="124" text-anchor="middle">live estate readings</text>
-      <text class="k" x="930" y="146" text-anchor="middle">read only</text></g>
-
-    <!-- control loop -->
-    <g class="nd" id="n_helix"><rect x="35" y="232" width="158" height="94" rx="12"/>
-      <text class="t" x="114" y="262" text-anchor="middle">Helix incident</text>
-      <text class="s" x="114" y="282" text-anchor="middle">raised by operations</text>
-      <text class="k" x="114" y="306" text-anchor="middle">BMC Helix ITSM</text></g>
-    <g class="nd" id="n_jira"><rect x="237" y="232" width="158" height="94" rx="12"/>
-      <text class="t" x="316" y="262" text-anchor="middle">Jira ticket</text>
-      <text class="s" x="316" y="282" text-anchor="middle">a person labels it</text>
-      <text class="k" x="316" y="306" text-anchor="middle">Jira Cloud</text></g>
-    <g class="nd" id="n_sched"><rect x="439" y="232" width="158" height="94" rx="12"/>
-      <text class="t" x="518" y="262" text-anchor="middle">Scheduler</text>
-      <text class="s" x="518" y="282" text-anchor="middle">qualifies, then claims</text>
-      <text class="k" x="518" y="306" text-anchor="middle">lease in Postgres</text></g>
-    <g class="nd" id="n_worker"><rect x="641" y="232" width="158" height="94" rx="12"/>
-      <text class="t" x="720" y="262" text-anchor="middle">Investigation</text>
-      <text class="s" x="720" y="282" text-anchor="middle">loops until it has a cause</text>
-      <text class="k" x="720" y="306" text-anchor="middle">LangGraph</text></g>
-    <g class="nd" id="n_pack"><rect x="843" y="232" width="158" height="94" rx="12"/>
-      <text class="t" x="922" y="262" text-anchor="middle">Evidence pack</text>
-      <text class="s" x="922" y="282" text-anchor="middle">only what it may cite</text>
-      <text class="k" x="922" y="306" text-anchor="middle">graph retrieval</text></g>
-    <g class="nd model" id="n_reason"><rect x="1045" y="232" width="158" height="94" rx="12"/>
-      <text class="t" x="1124" y="262" text-anchor="middle">◆ Reasoner</text>
-      <text class="s" x="1124" y="282" text-anchor="middle">proposes a likely cause</text>
-      <text class="k" x="1124" y="306" text-anchor="middle">Copilot SDK</text></g>
-    <g class="nd act" id="n_gate"><rect x="1247" y="232" width="158" height="94" rx="12"/>
-      <text class="t" x="1326" y="262" text-anchor="middle">Authorisation gate</text>
-      <text class="s" x="1326" y="282" text-anchor="middle">proves it, or refuses</text>
-      <text class="k" x="1326" y="306" text-anchor="middle">runbook · change</text></g>
-
-    <!-- outcome -->
-    <g class="nd act" id="n_fix"><rect x="1155" y="402" width="250" height="76" rx="12"/>
-      <text class="t" x="1280" y="430" text-anchor="middle">Repair applied</text>
-      <text class="s" x="1280" y="450" text-anchor="middle">a declared runbook, executed</text>
-      <text class="k" x="1280" y="470" text-anchor="middle">two signals before resolved</text></g>
-    <g class="nd refused" id="n_esc"><rect x="1155" y="500" width="250" height="76" rx="12"/>
-      <text class="t" x="1280" y="528" text-anchor="middle">Escalated</text>
-      <text class="s" x="1280" y="548" text-anchor="middle">a human, with the evidence</text>
-      <text class="k" x="1280" y="568" text-anchor="middle">no runbook matched</text></g>
-    <g class="nd proven" id="n_out"><rect x="700" y="450" width="300" height="88" rx="12"/>
-      <text class="t" x="850" y="480" text-anchor="middle">Assessment comment</text>
-      <text class="s" x="850" y="500" text-anchor="middle">posted either way, never in the description</text>
-      <text class="k" x="850" y="522" text-anchor="middle">Jira · Helix</text></g>
-
-    <!-- observability -->
+    <!-- edges -->
+    <g id="e_t_a" class="eg"><path d="M193,279 L233,279" marker-end="url(#ah)"/></g>
+    <g id="e_a_d" class="eg"><path d="M395,279 L435,279" marker-end="url(#ah)"/></g>
+    <g id="e_d_i" class="eg"><path d="M597,279 L637,279" marker-end="url(#ah)"/></g>
+    <g id="e_i_r" class="eg"><path d="M799,279 L839,279" marker-end="url(#ah)"/></g>
+    <g id="e_r_p" class="eg"><path d="M1001,279 L1041,279" marker-end="url(#ah)"/></g>
+    <g id="e_p_g" class="eg"><path d="M1203,279 L1243,279" marker-end="url(#ah)"/></g>
+    <g id="e_n_k" class="eg"><path d="M480,116 L556,116" marker-end="url(#ah)"/></g>
+    <g id="e_k_i" class="eg"><path d="M655,160 L700,228" marker-end="url(#ah)"/></g>
+    <g id="e_y_i" class="eg"><path d="M885,160 L748,228" marker-end="url(#ah)"/></g>
+    <g id="e_g_x" class="eg"><path d="M1326,330 L1326,396" marker-end="url(#ah)"/></g>
+    <g id="e_x_v" class="eg"><path d="M1326,476 L1326,496" marker-end="url(#ah)"/></g>
+    <g id="e_p_e" class="eg refused"><path d="M1124,330 L1124,416" marker-end="url(#ah)"/></g>
+    <g id="e_g_e" class="eg refused"><path d="M1262,330 L1190,416" marker-end="url(#ah)"/></g>
+    <g id="e_e_u" class="eg refused"><path d="M996,470 L944,490" marker-end="url(#ah)"/></g>
+    <g id="e_v_u" class="eg proven"><path d="M1243,538 L944,538" marker-end="url(#ah)"/></g>
+    <g id="e_u_c" class="eg proven"><path d="M636,514 L584,514" marker-end="url(#ah)"/></g>
+    <g id="e_c_t" class="eg proven"><path d="M480,470 L480,360 L114,360 L114,330" marker-end="url(#ah)"/></g>
     <g id="e_l_o" class="eg"><path d="M500,689 L636,689" marker-end="url(#ah)"/></g>
-    <g id="e_o_d" class="eg"><path d="M860,689 L996,689" marker-end="url(#ah)"/></g>
+    <g id="e_o_z" class="eg"><path d="M860,689 L996,689" marker-end="url(#ah)"/></g>
+    <text class="lbl" id="l_t_a" x="215" y="226" text-anchor="middle">labelled</text>
+    <text class="lbl" id="l_a_d" x="417" y="226" text-anchor="middle">admitted</text>
+    <text class="lbl" id="l_d_i" x="619" y="226" text-anchor="middle">leased</text>
+    <text class="lbl" id="l_i_r" x="821" y="226" text-anchor="middle">ask once</text>
+    <text class="lbl" id="l_r_p" x="1023" y="226" text-anchor="middle">propose</text>
+    <text class="lbl" id="l_p_g" x="1225" y="226" text-anchor="middle">matched</text>
+    <text class="lbl" id="l_n_k" x="518" y="108" text-anchor="middle">reviewed</text>
+    <text class="lbl" id="l_k_i" x="668" y="202" text-anchor="end">retrieve</text>
+    <text class="lbl" id="l_y_i" x="830" y="202" text-anchor="start">probe, only if asked</text>
+    <text class="lbl" id="l_g_x" x="1336" y="370" text-anchor="start">approved</text>
+    <text class="lbl" id="l_p_e" x="1114" y="370" text-anchor="end">no runbook</text>
+    <text class="lbl" id="l_g_e" x="1240" y="382" text-anchor="start">refused</text>
+    <text class="lbl" id="l_v_u" x="1090" y="556" text-anchor="middle">recovered</text>
+    <text class="lbl" id="l_c_t" x="300" y="354" text-anchor="middle">closed with a cause, or handed over</text>
     <text class="lbl" id="l_l_o" x="568" y="679" text-anchor="middle">projected</text>
-    <text class="lbl" id="l_o_d" x="928" y="679" text-anchor="middle">allowlisted fields only</text>
+    <text class="lbl" id="l_o_z" x="928" y="679" text-anchor="middle">allowlisted fields only</text>
 
-    <g class="nd" id="n_ledger"><rect x="300" y="648" width="200" height="82" rx="11"/>
-      <text class="t" x="400" y="677" text-anchor="middle">Event ledger</text>
-      <text class="s" x="400" y="697" text-anchor="middle">append only, never edited</text>
-      <text class="k" x="400" y="718" text-anchor="middle">PostgreSQL</text></g>
-    <g class="nd" id="n_otel"><rect x="640" y="648" width="220" height="82" rx="11"/>
-      <text class="t" x="750" y="677" text-anchor="middle">Telemetry exporter</text>
-      <text class="s" x="750" y="697" text-anchor="middle">metrics and traces</text>
-      <text class="k" x="750" y="718" text-anchor="middle">OpenTelemetry · OTLP</text></g>
-    <g class="nd" id="n_dta"><rect x="1000" y="648" width="220" height="82" rx="11"/>
-      <text class="t" x="1110" y="677" text-anchor="middle">Wherever you look today</text>
-      <text class="s" x="1110" y="697" text-anchor="middle">dashboards, alerts, audit</text>
-      <text class="k" x="1110" y="718" text-anchor="middle">separate tenant</text></g>
-
+    <!-- nodes -->
+    <g class="nd" id="n_learn"><rect x="290" y="74" width="190" height="84" rx="12"/>
+      <text class="t" x="385" y="102" text-anchor="middle">Learn</text>
+      <text class="s" x="385" y="122" text-anchor="middle">notes from settled assessments</text>
+      <text class="k" x="385" y="142" text-anchor="middle">relay.learn</text></g>
+    <g class="nd" id="n_corpus"><rect x="560" y="74" width="190" height="84" rx="12"/>
+      <text class="t" x="655" y="102" text-anchor="middle">Knowledge graph</text>
+      <text class="s" x="655" y="122" text-anchor="middle">3 months of resolved incidents</text>
+      <text class="k" x="655" y="142" text-anchor="middle">PostgreSQL</text></g>
+    <g class="nd" id="n_dt"><rect x="790" y="74" width="190" height="84" rx="12"/>
+      <text class="t" x="885" y="102" text-anchor="middle">Dynatrace nonprod</text>
+      <text class="s" x="885" y="122" text-anchor="middle">problems for the mapped entity</text>
+      <text class="k" x="885" y="142" text-anchor="middle">read only</text></g>
+    <g class="nd" id="n_ticket"><rect x="35" y="232" width="158" height="94" rx="12"/>
+      <text class="t" x="114" y="262" text-anchor="middle">Ticket</text>
+      <text class="s" x="114" y="282" text-anchor="middle">a person labels it</text>
+      <text class="k" x="114" y="306" text-anchor="middle">jira · helix plugin</text></g>
+    <g class="nd" id="n_admit"><rect x="237" y="232" width="158" height="94" rx="12"/>
+      <text class="t" x="316" y="262" text-anchor="middle">Admit</text>
+      <text class="s" x="316" y="282" text-anchor="middle">policy re-checked, claimed</text>
+      <text class="k" x="316" y="306" text-anchor="middle">relay.admit</text></g>
+    <g class="nd" id="n_dispatch"><rect x="439" y="232" width="158" height="94" rx="12"/>
+      <text class="t" x="518" y="262" text-anchor="middle">Dispatch</text>
+      <text class="s" x="518" y="282" text-anchor="middle">lease, one detached worker</text>
+      <text class="k" x="518" y="306" text-anchor="middle">relay.dispatch</text></g>
+    <g class="nd" id="n_inv"><rect x="641" y="232" width="158" height="94" rx="12"/>
+      <text class="t" x="720" y="262" text-anchor="middle">Investigate</text>
+      <text class="s" x="720" y="282" text-anchor="middle">loops until it has a cause</text>
+      <text class="k" x="720" y="306" text-anchor="middle">relay.investigate</text></g>
+    <g class="nd model" id="n_reason"><rect x="843" y="232" width="158" height="94" rx="12"/>
+      <text class="t" x="922" y="262" text-anchor="middle">◆ Reason</text>
+      <text class="s" x="922" y="282" text-anchor="middle">proposes a likely cause</text>
+      <text class="k" x="922" y="306" text-anchor="middle">copilot sdk</text></g>
+    <g class="nd" id="n_plan"><rect x="1045" y="232" width="158" height="94" rx="12"/>
+      <text class="t" x="1124" y="262" text-anchor="middle">Plan</text>
+      <text class="s" x="1124" y="282" text-anchor="middle">matches a trusted runbook</text>
+      <text class="k" x="1124" y="306" text-anchor="middle">runbook predicate</text></g>
+    <g class="nd act" id="n_gate"><rect x="1247" y="232" width="158" height="94" rx="12"/>
+      <text class="t" x="1326" y="262" text-anchor="middle">Gate</text>
+      <text class="s" x="1326" y="282" text-anchor="middle">stop · hourly cap · change</text>
+      <text class="k" x="1326" y="306" text-anchor="middle">relay.gate</text></g>
+    <g class="nd act" id="n_exec"><rect x="1247" y="400" width="158" height="76" rx="12"/>
+      <text class="t" x="1326" y="428" text-anchor="middle">Execute</text>
+      <text class="s" x="1326" y="448" text-anchor="middle">reserve, apply once</text>
+      <text class="k" x="1326" y="468" text-anchor="middle">relay.execute</text></g>
+    <g class="nd act" id="n_verify"><rect x="1247" y="500" width="158" height="76" rx="12"/>
+      <text class="t" x="1326" y="528" text-anchor="middle">Verify</text>
+      <text class="s" x="1326" y="548" text-anchor="middle">receipt, signals agree</text>
+      <text class="k" x="1326" y="568" text-anchor="middle">relay.verify</text></g>
+    <g class="nd refused" id="n_esc"><rect x="1000" y="420" width="200" height="76" rx="12"/>
+      <text class="t" x="1100" y="448" text-anchor="middle">Escalated or refused</text>
+      <text class="s" x="1100" y="468" text-anchor="middle">a human, with the evidence</text>
+      <text class="k" x="1100" y="488" text-anchor="middle">nothing is fabricated</text></g>
+    <g class="nd proven" id="n_pub"><rect x="640" y="470" width="300" height="88" rx="12"/>
+      <text class="t" x="790" y="498" text-anchor="middle">Publish</text>
+      <text class="s" x="790" y="518" text-anchor="middle">pickup, assessment, resolution comments</text>
+      <text class="k" x="790" y="538" text-anchor="middle">relay.publish · durable outbox</text></g>
+    <g class="nd proven" id="n_close"><rect x="380" y="470" width="200" height="88" rx="12"/>
+      <text class="t" x="480" y="498" text-anchor="middle">Close</text>
+      <text class="s" x="480" y="518" text-anchor="middle">only a verified resolution</text>
+      <text class="k" x="480" y="538" text-anchor="middle">policy predicate</text></g>
+    <g class="nd" id="n_ledger"><rect x="300" y="648" width="200" height="82" rx="12"/>
+      <text class="t" x="400" y="676" text-anchor="middle">Event ledger</text>
+      <text class="s" x="400" y="696" text-anchor="middle">append only, never edited</text>
+      <text class="k" x="400" y="716" text-anchor="middle">PostgreSQL</text></g>
+    <g class="nd" id="n_otel"><rect x="640" y="648" width="220" height="82" rx="12"/>
+      <text class="t" x="750" y="676" text-anchor="middle">Export</text>
+      <text class="s" x="750" y="696" text-anchor="middle">metrics, and a span per hop</text>
+      <text class="k" x="750" y="716" text-anchor="middle">relay.export · OTLP</text></g>
+    <g class="nd" id="n_dta"><rect x="1000" y="648" width="220" height="82" rx="12"/>
+      <text class="t" x="1110" y="676" text-anchor="middle">Dynatrace</text>
+      <text class="s" x="1110" y="696" text-anchor="middle">dashboards, alerts, one trace</text>
+      <text class="k" x="1110" y="716" text-anchor="middle">separate tenant</text></g>
     <circle id="pkt" class="pkt" r="6.5" cx="0" cy="0"/>
   </svg>
   </section>
@@ -411,33 +413,23 @@ kbd{color:var(--muted)}
 </div>
 
 <script>
-/* Frame 0 is slide 1. Frames 1..12 build slide 2, and the story accumulates:
+/* Frame 0 is slide 1. Frames 1..13 build slide 2, and the story accumulates:
    what a step lights stays lit, so the last frame shows the whole system. */
 const FRAMES = [
-  {slide:1, cap:"<b>Two slides.</b> What it is built on, then what happens to a single ticket."},
-  {slide:2, all:true, on:[], cap:"<b>The whole path.</b> One ticket, left to right — then back to the systems of record it came from."},
-  {slide:2, on:["n_helix","n_jira"], eg:"e_h_j",
-   cap:"<b>Raised.</b> Operations logs the incident in Helix exactly as they do today, and it reaches the Jira board."},
-  {slide:2, on:["n_jira","n_sched"], eg:"e_j_s",
-   cap:"<b>Admitted.</b> A person adds the automation label. That label is the consent — ZTO never admits its own work."},
-  {slide:2, on:["n_sched","n_worker"], eg:"e_s_w",
-   cap:"<b>Claimed.</b> The scheduler takes a lease on the ticket. Run as many servers as you like; only one can hold it."},
-  {slide:2, on:["n_worker","n_pack","n_corpus","n_dt"], eg:"e_w_p", extra:["e_c_p","e_d_p"],
-   cap:"<b>Evidence.</b> It assembles only what it is allowed to cite — three months of resolved incidents, and live readings if the investigation asks."},
-  {slide:2, on:["n_pack","n_reason"], eg:"e_p_r",
-   cap:"<b>The one model call.</b> Copilot reads the pack and proposes a cause. It has no way to act on it, and nothing downstream trusts it yet."},
-  {slide:2, on:["n_reason","n_gate"], eg:"e_r_g",
-   cap:"<b>Proved, not believed.</b> The proposal is matched against the declared runbooks, then re-checked against a fresh estate snapshot. Nothing runs past an emergency stop, the hourly cap, or a change that is not approved."},
-  {slide:2, on:["n_gate","n_fix"], eg:"e_g_f",
-   cap:"<b>Repair applied.</b> A runbook matched and its condition held, so it ran. Two independent signals must agree before this is called resolved."},
-  {slide:2, on:["n_gate","n_esc"], eg:"e_g_e",
-   cap:"<b>Escalated.</b> Nothing matched, so it stops and hands a person the evidence it gathered. A human is needed only when the system has no idea."},
-  {slide:2, on:["n_fix","n_esc","n_out","n_jira","n_helix"], eg:"e_f_o", extra:["e_e_o","e_o_b","e_b_j","e_b_h"],
-   cap:"<b>Written back.</b> Either outcome gets the same treatment: an assessment comment on Jira and on Helix. The description is never touched."},
-  {slide:2, on:["n_ledger","n_otel","n_dta"], eg:"e_l_o", extra:["e_o_d"],
-   cap:"<b>Recorded as it happened.</b> Every hop above wrote to an append-only ledger. Metrics and one <code>relay.*</code> span per hop are projected from it, not a second source of truth."},
-  {slide:2, done:true, on:[],
-   cap:"<b>One consent, one model call, one gate, one durable receipt.</b> Everything else is ordinary, testable code."}
+  {"slide": 1, "cap": "<b>Two slides.</b> What it is built on, then what happens to a single ticket."},
+  {"slide": 2, "all": true, "on": [], "cap": "<b>The whole path.</b> Eleven Relay hops take one ticket left to right, then back to the ticket it came from."},
+  {"slide": 2, "on": ["n_ticket", "n_admit"], "eg": "e_t_a", "cap": "<b>Admit.</b> A person labels the ticket, in Jira or Helix — the tracker is a plugin. Policy is re-checked and the claim is read back before it is announced. ZTO never raises its own work."},
+  {"slide": 2, "on": ["n_admit", "n_dispatch"], "eg": "e_a_d", "cap": "<b>Dispatch.</b> The scheduler leases the incident and starts one detached worker. Run as many servers as you like; only one can hold the lease."},
+  {"slide": 2, "on": ["n_dispatch", "n_inv", "n_corpus", "n_dt"], "eg": "e_d_i", "extra": ["e_k_i", "e_y_i"], "cap": "<b>Investigate.</b> LangGraph gathers only what it may cite: three months of resolved incidents, and Dynatrace nonprod problems for the mapped entity, read only."},
+  {"slide": 2, "on": ["n_inv", "n_reason"], "eg": "e_i_r", "cap": "<b>The one model call.</b> Copilot reads the fenced evidence pack and proposes a cause. It has no way to act, and nothing downstream trusts it yet."},
+  {"slide": 2, "on": ["n_reason", "n_plan"], "eg": "e_r_p", "cap": "<b>Plan.</b> The proposal is matched against trusted runbooks. The runbook's own predicate decides whether it applies — never the model's."},
+  {"slide": 2, "on": ["n_plan", "n_gate"], "eg": "e_p_g", "cap": "<b>Gate.</b> Before any new effect: the emergency stop, the hourly cap, and an approved change. A pending change waits; a refused one stops the run."},
+  {"slide": 2, "on": ["n_gate", "n_exec", "n_verify"], "eg": "e_g_x", "extra": ["e_x_v"], "cap": "<b>Execute, then verify.</b> Snapshot, reserve in the outbox, apply once. Resolved needs a confirmed receipt and every declared recovery signal to agree."},
+  {"slide": 2, "on": ["n_plan", "n_gate", "n_esc"], "eg": "e_p_e", "extra": ["e_g_e"], "cap": "<b>Escalated or refused.</b> No runbook matched, or change control refused the change. A person gets the evidence it gathered. Nothing is fabricated to look like a fix."},
+  {"slide": 2, "on": ["n_verify", "n_esc", "n_pub", "n_close", "n_ticket"], "eg": "e_v_u", "extra": ["e_e_u", "e_u_c", "e_c_t"], "cap": "<b>Publish, then close.</b> Every write goes through a durable outbox: reserve, send, read back. Only a verified resolution closes the ticket. An uncertain send is reconciled, never retried."},
+  {"slide": 2, "on": ["n_learn", "n_corpus"], "eg": "e_n_k", "cap": "<b>Learn.</b> Settled assessments become reviewable notes. A person approves one before any investigation can cite it."},
+  {"slide": 2, "on": ["n_ledger", "n_otel", "n_dta"], "eg": "e_l_o", "extra": ["e_o_z"], "cap": "<b>Export.</b> Every hop wrote to an append-only ledger. Metrics and one <code>relay.*</code> span per hop are projected from it — one trace per incident, not a second source of truth."},
+  {"slide": 2, "done": true, "on": [], "cap": "<b>One consent, one model call, one gate, one durable receipt.</b> Eleven hops, each a plugin seam: swap Jira for Helix without touching the loop."}
 ];
 
 const $ = s => document.querySelector(s);
