@@ -1,16 +1,29 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zero-Touch Operations</title>
+<script>
+/* Pick the theme before first paint so the deck never flashes the wrong ground.
+   ?theme=light|dark wins, then the presenter's last choice, then dark. */
+(function(){
+  try{
+    var q = new URLSearchParams(location.search).get("theme");
+    var t = q || localStorage.getItem("zto-theme");
+    if(t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+  }catch(e){}
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <style>
-/* A projected deck commits to one visual world: an operations console, lit low.
-   Every colour is painted explicitly so the page holds on any host ground. */
+/* Two visual worlds, one palette logic. Dark is an operations console, lit low, for a
+   dim room. Light is the same console printed on cool paper, for a bright room or a
+   handout. Every colour is a token, so the page holds on any host ground in either. */
 :root{
+  color-scheme:dark;
   --ground:#080D13;      /* near-black, biased green-blue toward the console */
   --panel:#111A24;
   --panel-2:#0C141C;
@@ -22,19 +35,79 @@
   --signal:#F2A23C;      /* the one bold accent: an ops alert, and the queue backing up */
   --proven:#4FBF9F;
   --refused:#E0698A;
-  --model:#A98BFA;       /* reserved strictly for the single model call */
+  --model:#A98BFA;       /* reserved strictly for the one model seam */
   --dim:.16;
+  --on-signal:#150C02;   /* ink that sits on a filled signal button */
+  --signal-hover:#F6B462;
+  --btn-hover:#16212D;
+  --k-seen:#5E7A93;
+  --band-fill:rgba(255,255,255,.012);
+  --tint-a:rgba(242,162,60,.07);
+  --tint-b:rgba(169,139,250,.06);
+  --stage-a:var(--panel-2);
+  --stage-b:#070C12;
+  --stage-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.028);
+  --glow:48%;            /* how hard a lit node glows; a bright room needs less */
+  --glow-strong:70%;
+  --model-wash:17%;      /* how much of its colour a permanently marked node carries */
+  --model-wash-on:28%;
+  --act-wash:14%;
+  --act-wash-on:24%;
   --display:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
   --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+/* Light follows IBM Carbon's g10 cool-gray layering, the house system for the Plex
+   type this deck already sets: a grey ground, a soft grey stage, and white only on the
+   cards that carry content, so nothing on screen glares. Accents are Carbon's 60-grade
+   support colours, which hold AA contrast as text; glows give way to crisp outlines. */
+:root[data-theme="light"]{
+  color-scheme:light;
+  --ground:#DDE1E6;      /* cool-gray-20 */
+  --panel:#FFFFFF;       /* layer-01: cards and controls */
+  --panel-2:#F2F4F8;
+  --line:#C1C7CD;        /* cool-gray-30 */
+  --edge:#878D96;        /* cool-gray-50 */
+  --ink:#121619;         /* cool-gray-100 */
+  --ink-2:#343A3F;       /* cool-gray-80 */
+  --muted:#5A6168;
+  --signal:#BA4E00;      /* orange-60 */
+  --proven:#198038;      /* green-60 */
+  --refused:#DA1E28;     /* red-60 */
+  --model:#8A3FFC;       /* purple-60 */
+  --dim:.3;
+  --on-signal:#FFFFFF;
+  --signal-hover:#8A3800;/* orange-70 */
+  --btn-hover:#E8EBF0;
+  --k-seen:#5A6168;
+  --band-fill:rgba(255,255,255,.38);
+  --tint-a:transparent;
+  --tint-b:transparent;
+  --stage-a:#EAEDF1;     /* between cool-gray-10 and -20 */
+  --stage-b:#E3E7EC;
+  --stage-shadow:0 1px 2px rgba(18,22,25,.08), 0 10px 30px rgba(18,22,25,.08);
+  --glow:22%;
+  --glow-strong:28%;
+  --model-wash:9%;
+  --model-wash-on:16%;
+  --act-wash:7%;
+  --act-wash-on:13%;
+  --card-edge:#A2A9B0;   /* cool-gray-40: idle cards are outlined lightly and lifted instead */
+  --card-lift:drop-shadow(0 1px 1.5px rgba(18,22,25,.10)) drop-shadow(0 4px 10px rgba(18,22,25,.05));
+  --control-lift:0 1px 2px rgba(18,22,25,.07);
+}
+/* Only during a switch: ease the repaint, then get out of the way of the build. */
+html.theming, html.theming *{
+  transition:background-color .35s ease,color .35s ease,border-color .35s ease,
+    fill .35s ease,stroke .35s ease,box-shadow .35s ease !important;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;color:var(--ink);overflow:hidden;
   background:
-    radial-gradient(1100px 620px at 84% -12%, rgba(242,162,60,.07), transparent 62%),
-    radial-gradient(900px 540px at 8% 112%, rgba(169,139,250,.06), transparent 62%),
+    radial-gradient(1100px 620px at 84% -12%, var(--tint-a), transparent 62%),
+    radial-gradient(900px 540px at 8% 112%, var(--tint-b), transparent 62%),
     var(--ground);
   font:400 16px/1.55 var(--body);
   -webkit-font-smoothing:antialiased;
@@ -59,7 +132,7 @@ h1{font:800 24px/1.1 var(--display);letter-spacing:-.03em;margin:0 0 3px;text-wr
 .thesis b{color:var(--signal);font-weight:600}
 .spacer{flex:1 1 auto}
 
-/* slide chips: the deck is two slides, and says so */
+/* slide chips: the deck is three slides, and says so */
 .slides{display:flex;gap:8px}
 .chip{
   font:500 13px/1 var(--body);color:var(--muted);background:transparent;
@@ -78,30 +151,38 @@ h1{font:800 24px/1.1 var(--display);letter-spacing:-.03em;margin:0 0 3px;text-wr
   border:1px solid var(--line);border-radius:8px;padding:10px 13px;cursor:pointer;
   transition:border-color .18s,background .18s,color .18s,transform .07s;
 }
-.btn:hover{border-color:var(--edge);color:var(--ink);background:#16212D}
+.btn:hover{border-color:var(--edge);color:var(--ink);background:var(--btn-hover)}
 .btn:active{transform:translateY(1px)}
-.btn.play{background:var(--signal);border-color:var(--signal);color:#150C02;font-weight:600}
-.btn.play:hover{background:#F6B462;border-color:#F6B462;color:#150C02}
+.btn.play{background:var(--signal);border-color:var(--signal);color:var(--on-signal);font-weight:600}
+.btn.play:hover{background:var(--signal-hover);border-color:var(--signal-hover);color:var(--on-signal)}
 .btn:focus-visible,.chip:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+/* Theme switch: shows where you would go, not where you are, like a light switch label. */
+.btn.theme{display:flex;align-items:center;justify-content:center;padding:0;width:38px;height:36px}
+.btn.theme svg{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.btn.theme .sun{display:block}
+.btn.theme .moon{display:none}
+:root[data-theme="light"] .btn.theme .sun{display:none}
+:root[data-theme="light"] .btn.theme .moon{display:block}
 .count{font:500 12.5px/1 var(--mono);color:var(--muted);min-width:58px;text-align:center;
   font-variant-numeric:tabular-nums}
 
 /* ---- stage ---------------------------------------------------------- */
 .stage{
   flex:1 1 auto;min-height:0;display:flex;flex-direction:column;
-  background:linear-gradient(178deg,var(--panel-2),#070C12);
+  background:linear-gradient(178deg,var(--stage-a),var(--stage-b));
   border:1px solid var(--line);border-radius:18px;
-  box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.028);
+  box-shadow:var(--stage-shadow);
   overflow:hidden;
 }
-.s1,.s2{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.s1,.s2,.s3{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
 [hidden]{display:none !important}
 
 /* ---- slide 1: the stack --------------------------------------------
-   A headline, then the five stages in the order slide 2 walks them. Ruled columns
+   A headline, then the five stages in the order slide 3 walks them. Ruled columns
    rather than cards: the sequence is the structure, so nothing else needs a border.
    Each column is the technology and one line about it — the prose headings came off
-   because five of them read as a second deck competing with slide 2. */
+   because five of them read as a second deck competing with slide 3. */
 .s1{padding:34px 40px 26px;justify-content:center}
 .s1 .eyebrow{font:600 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;
   color:var(--muted);margin:0 0 30px;flex:0 0 auto}
@@ -116,27 +197,28 @@ h1{font:800 24px/1.1 var(--display);letter-spacing:-.03em;margin:0 0 3px;text-wr
 .st .num{display:block;font:800 clamp(30px,2.9vw,44px)/1 var(--display);letter-spacing:-.04em;
   color:var(--edge);font-variant-numeric:tabular-nums;margin:0 0 14px;flex:0 0 auto}
 .st ul{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-direction:column;
-  gap:3px;min-height:66px;flex:0 0 auto}
+  gap:3px;min-height:92px;flex:0 0 auto}
 .st p{margin:0;font-size:clamp(13px,1.02vw,15px);line-height:1.6;color:var(--ink-2);
   text-wrap:balance}
 .st li{font:700 clamp(17px,1.5vw,22px)/1.3 var(--display);letter-spacing:-.022em;
   color:var(--ink);white-space:nowrap}
-/* The one model call is the only item on this slide that carries colour. */
+/* The one model seam is the only item on this slide that carries colour. */
 .st li.ai{color:var(--model)}
+.st li i{font-style:normal;font-weight:500;font-size:.62em;color:var(--ink-2);letter-spacing:0}
 
 /* entrance: staggered, but from a visible resting state — never parked invisible */
 .reveal{animation:rise .5s cubic-bezier(.2,.7,.3,1) backwards;animation-delay:var(--d,0s)}
 @keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
 
-/* ---- slide 2: the flow ---------------------------------------------- */
-.s2{padding:14px 18px 8px}
+/* ---- slides 2 and 3: the architecture, then the flow ----------------- */
+.s2,.s3{padding:14px 18px 8px}
 svg{flex:1 1 auto;min-height:0;width:100%;height:100%;display:block}
 
-.band{fill:rgba(255,255,255,.012);stroke:var(--line);stroke-width:1;stroke-dasharray:5 6}
+.band{fill:var(--band-fill);stroke:var(--line);stroke-width:1;stroke-dasharray:5 6}
 .bandtxt{fill:var(--muted);font:600 10.5px var(--mono);letter-spacing:.15em;text-transform:uppercase}
 
 .nd{opacity:var(--dim);transition:opacity .4s ease}
-.nd rect{fill:var(--panel);stroke:var(--edge);stroke-width:1.5;
+.nd > rect{fill:var(--panel);stroke:var(--edge);stroke-width:1.5;
   transition:stroke .3s,stroke-width .3s,fill .3s,filter .3s}
 .nd .t{fill:var(--ink);font:600 14px var(--body);letter-spacing:-.008em}
 .nd .s{fill:var(--muted);font:400 11.5px var(--body)}
@@ -144,25 +226,36 @@ svg{flex:1 1 auto;min-height:0;width:100%;height:100%;display:block}
 .nd.seen{opacity:1}
 .nd.preview{opacity:.5}
 .nd.on{opacity:1}
-.nd.seen .k,.nd.on .k{fill:#5E7A93}
-.nd.on rect{stroke:var(--signal);stroke-width:2.4;
-  filter:drop-shadow(0 0 16px color-mix(in srgb,var(--signal) 48%,transparent))}
-.nd.proven.on rect{stroke:var(--proven);
-  filter:drop-shadow(0 0 16px color-mix(in srgb,var(--proven) 48%,transparent))}
-.nd.refused.on rect{stroke:var(--refused);
-  filter:drop-shadow(0 0 16px color-mix(in srgb,var(--refused) 48%,transparent))}
+.nd.seen .k,.nd.on .k{fill:var(--k-seen)}
+.nd.on > rect{stroke:var(--signal);stroke-width:2.4;
+  filter:drop-shadow(0 0 16px color-mix(in srgb,var(--signal) var(--glow),transparent))}
+.nd.proven.on > rect{stroke:var(--proven);
+  filter:drop-shadow(0 0 16px color-mix(in srgb,var(--proven) var(--glow),transparent))}
+.nd.refused.on > rect{stroke:var(--refused);
+  filter:drop-shadow(0 0 16px color-mix(in srgb,var(--refused) var(--glow),transparent))}
 
-/* the single model call, and the single acting step, carry their colour always */
-.nd.model rect{stroke:var(--model);stroke-width:2.4;
-  fill:color-mix(in srgb,var(--model) 17%,var(--panel))}
-.nd.model.on rect{stroke-width:3;fill:color-mix(in srgb,var(--model) 28%,var(--panel));
-  filter:drop-shadow(0 0 26px color-mix(in srgb,var(--model) 70%,transparent))}
+/* the model seam, and the steps that can act, carry their colour always */
+.nd.model > rect{stroke:var(--model);stroke-width:2.4;
+  fill:color-mix(in srgb,var(--model) var(--model-wash),var(--panel))}
+.nd.model.on > rect{stroke-width:3;fill:color-mix(in srgb,var(--model) var(--model-wash-on),var(--panel));
+  filter:drop-shadow(0 0 26px color-mix(in srgb,var(--model) var(--glow-strong),transparent))}
 .nd.model .k{fill:var(--model)}
-.nd.act rect{stroke:var(--signal);stroke-width:2.4;
-  fill:color-mix(in srgb,var(--signal) 14%,var(--panel))}
-.nd.act.on rect{stroke-width:3;fill:color-mix(in srgb,var(--signal) 24%,var(--panel));
-  filter:drop-shadow(0 0 26px color-mix(in srgb,var(--signal) 68%,transparent))}
+.nd.act > rect{stroke:var(--signal);stroke-width:2.4;
+  fill:color-mix(in srgb,var(--signal) var(--act-wash),var(--panel))}
+.nd.act.on > rect{stroke-width:3;fill:color-mix(in srgb,var(--signal) var(--act-wash-on),var(--panel));
+  filter:drop-shadow(0 0 26px color-mix(in srgb,var(--signal) var(--glow-strong),transparent))}
 .nd.act .k{fill:var(--signal)}
+/* Light elevation. :where() keeps these at the specificity of a plain idle node, so
+   every lit, model and acting state above still wins without restating it. */
+:where(:root[data-theme="light"]) .nd > rect{stroke:var(--card-edge);filter:var(--card-lift)}
+:root[data-theme="light"] .btn:not(.play),
+:root[data-theme="light"] .chip[aria-current="true"]{box-shadow:var(--control-lift)}
+:root[data-theme="light"] .chip[aria-current="true"]{background:var(--panel)}
+:root[data-theme="light"] .mark{background:var(--panel);box-shadow:var(--control-lift)}
+/* On white a glow carries less, so the lit step also takes a faint wash of its colour. */
+:root[data-theme="light"] .nd.on:not(.model):not(.act) > rect{fill:color-mix(in srgb,var(--signal) 7%,var(--panel))}
+:root[data-theme="light"] .nd.proven.on > rect{fill:color-mix(in srgb,var(--proven) 8%,var(--panel))}
+:root[data-theme="light"] .nd.refused.on > rect{fill:color-mix(in srgb,var(--refused) 7%,var(--panel))}
 
 .eg{fill:none;stroke:var(--edge);stroke-width:1.9;opacity:.16;
   transition:opacity .4s,stroke .4s,stroke-width .4s}
@@ -176,6 +269,29 @@ svg{flex:1 1 auto;min-height:0;width:100%;height:100%;display:block}
 .lbl.preview{opacity:.5}
 .lbl.on{opacity:1;fill:var(--ink)}
 .pkt{fill:var(--signal);opacity:0;filter:drop-shadow(0 0 9px var(--signal))}
+
+/* The architecture slide: layers read top to bottom in call order; the planes stand
+   full height beside them because each crosses every layer; underneath, the same hops
+   read as MAPE-K, and the scale says how autonomous that loop is allowed to be. */
+.lyr .t{font:700 17px var(--display);letter-spacing:-.02em}
+.pln .t,.phs .t,.aut .t{font:700 15.5px var(--display);letter-spacing:-.018em}
+.lyr .s{font-size:12.5px;fill:var(--ink-2)}
+.phs .s{font-size:11px}
+.pln > rect{stroke-dasharray:6 5}
+.pk rect,.ctl rect,.lvl rect{fill:var(--panel-2);stroke:var(--line);stroke-width:1}
+.pk text{fill:var(--ink);font:500 12px var(--mono)}
+.ctl text{fill:var(--ink-2);font:500 11px var(--mono)}
+.hp{fill:var(--k-seen);font:500 10px var(--mono)}
+.pln .div{stroke:var(--line);stroke-width:1}
+.pln .nopk{fill:var(--muted);font:400 11px var(--body)}
+.lvl text{fill:var(--muted);font:600 11px var(--mono)}
+.lvl.cur rect{fill:color-mix(in srgb,var(--signal) 16%,var(--panel));stroke:var(--signal)}
+.lvl.cur text{fill:var(--ink)}
+.lvl.opt rect{stroke:var(--proven);stroke-dasharray:3 3}
+.lvl.opt text{fill:var(--proven)}
+.lvk{font:500 10px var(--mono);letter-spacing:.06em}
+.lvk.cur{fill:var(--signal)}
+.lvk.opt{fill:var(--proven)}
 
 /* ---- footer rail ---------------------------------------------------- */
 .foot{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
@@ -221,13 +337,18 @@ kbd{color:var(--muted)}
     <div class="spacer"></div>
     <nav class="slides" aria-label="Slides">
       <button class="chip" id="c1" data-frame="0"><span class="n">01</span> The stack</button>
-      <button class="chip" id="c2" data-frame="1"><span class="n">02</span> Ticket to outcome</button>
+      <button class="chip" id="c2" data-frame="1"><span class="n">02</span> Architecture</button>
+      <button class="chip" id="c3" data-frame="9"><span class="n">03</span> Ticket to outcome</button>
     </nav>
     <div class="controls">
       <button class="btn" id="prev" title="Back (←)">‹</button>
-      <span class="count" id="count">1 / 14</span>
+      <span class="count" id="count">1 / 22</span>
       <button class="btn" id="next" title="Next (→)">›</button>
       <button class="btn play" id="play" title="Play / pause (space)">▶&nbsp; Play</button>
+      <button class="btn theme" id="theme" title="Light theme (t)" aria-label="Switch to light theme">
+        <svg class="sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 14.6A8.3 8.3 0 0 1 9.4 3.8a8.3 8.3 0 1 0 10.8 10.8z"/></svg>
+      </button>
     </div>
   </header>
 
@@ -252,28 +373,169 @@ kbd{color:var(--muted)}
 
       <div class="st reveal" style="--d:.24s">
         <span class="num">3</span>
-        <ul><li>LangGraph</li><li class="ai">◆ Copilot SDK</li></ul>
-        <p>One model call, on evidence it is allowed to cite.</p>
+        <ul><li>LangGraph</li><li class="ai">◆ Copilot SDK</li><li class="ai">◆ Claude API</li></ul>
+        <p>The only hop that asks a model: bounded rounds, on evidence it is allowed to cite. Engine and model are configuration, not code.</p>
       </div>
 
       <div class="st reveal" style="--d:.32s">
         <span class="num">4</span>
-        <ul><li>Python 3.12</li><li>Relay</li></ul>
-        <p>Eleven named hops, each a plugin seam. Deterministic code decides what may run. The model never does.</p>
+        <ul><li>Python 3.12</li><li>Relay</li><li>Cedar <i>(optional)</i></li><li>Temporal <i>(optional)</i></li></ul>
+        <p>Eleven named hops; vendors plug in at ten seams. Deterministic code and a Cedar policy decide what may run; the model never does. Run once, or on a durable Temporal schedule.</p>
       </div>
 
       <div class="st reveal" style="--d:.40s">
         <span class="num">5</span>
         <ul><li>OpenTelemetry</li><li>Dynatrace</li></ul>
-        <p>Every hop recorded in Postgres, then projected as metrics and one <code>relay.*</code> span per hop.</p>
+        <p>Every hop recorded in Postgres, then projected as metrics and a <code>relay.*</code> span for each timed hop, to any OTLP backend.</p>
       </div>
     </div>
   </section>
 
   <!-- ============================ SLIDE 2 ============================ -->
   <section class="s2" id="s2" hidden>
-  <svg id="svg" viewBox="0 0 1440 780" role="img"
-       aria-label="How a ticket becomes an outcome through eleven Relay hops: admit, dispatch, investigate with one model call, plan, gate, then execute and verify or escalate, publish and close, with learn and export alongside.">
+  <svg id="svg-arch" viewBox="0 0 1440 780" role="img"
+       aria-label="The reference architecture: six layers in call order (Experience, Orchestration, Cognition, Domain, State and knowledge, Integration), three planes that cross every layer (Trust, Observability, Governance), and Relay's eleven hops read as one closed MAPE-K loop, with the autonomy level it is allowed to run at.">
+    <defs>
+      <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="var(--edge)"/>
+      </marker>
+    </defs>
+
+    <text class="bandtxt" x="40" y="40">Six layers · calls flow down, dependencies point to the domain</text>
+    <text class="bandtxt" x="980" y="40">Three planes · across every layer</text>
+    <text class="bandtxt" x="40" y="562">One closed loop · MAPE-K over Relay's eleven hops</text>
+
+    <g class="nd lyr" id="ly_experience"><rect x="24" y="54" width="928" height="68" rx="12"/>
+      <text class="t" x="48" y="84">Experience</text>
+      <text class="k" x="48" y="104">driving adapter</text>
+      <g class="pk"><title>cli: operator commands and the run cycle</title><rect x="272" y="75" width="40" height="26" rx="6"/><text x="292" y="92.5" text-anchor="middle">cli</text></g>
+      <text class="s" x="580" y="93">operator commands and the run cycle they drive</text></g>
+    <g class="nd lyr" id="ly_orchestration"><rect x="24" y="130" width="928" height="68" rx="12"/>
+      <text class="t" x="48" y="160">Orchestration</text>
+      <text class="k" x="48" y="180">application service</text>
+      <g class="pk"><title>relay: the eleven hops, one module each (ADR-0023)</title><rect x="272" y="151" width="54" height="26" rx="6"/><text x="299" y="168.5" text-anchor="middle">relay</text></g>
+      <g class="pk"><title>scheduler: ready set, leases, attempt bounds, process supervision (ADR-0004)</title><rect x="334" y="151" width="83" height="26" rx="6"/><text x="375.5" y="168.5" text-anchor="middle">scheduler</text></g>
+      <text class="s" x="580" y="160"><tspan>Relay's eleven hops,</tspan><tspan x="580" dy="18">over a deterministic scheduler with leases</tspan></text></g>
+    <g class="nd lyr model" id="ly_cognition"><rect x="24" y="206" width="928" height="68" rx="12"/>
+      <text class="t" x="48" y="236">◆ Cognition</text>
+      <text class="k" x="48" y="256">application service</text>
+      <g class="pk"><title>investigation: the investigation nodes, a configured engine and the evidence pack (ADR-0027)</title><rect x="272" y="227" width="112" height="26" rx="6"/><text x="328" y="244.5" text-anchor="middle">investigation</text></g>
+      <text class="s" x="580" y="236"><tspan>one bounded investigation per incident;</tspan><tspan x="580" dy="18">the only layer that asks a model</tspan></text></g>
+    <g class="nd lyr" id="ly_domain"><rect x="24" y="282" width="928" height="68" rx="12"/>
+      <text class="t" x="48" y="312">Domain</text>
+      <text class="k" x="48" y="332">domain model</text>
+      <g class="pk"><title>domain: canonical types, lifecycle, policy and the graph aggregate</title><rect x="272" y="303" width="61" height="26" rx="6"/><text x="302.5" y="320.5" text-anchor="middle">domain</text></g>
+      <text class="s" x="580" y="312"><tspan>canonical types, lifecycle, policy, redaction,</tspan><tspan x="580" dy="18">the fence and the graph aggregate</tspan></text></g>
+    <g class="nd lyr" id="ly_state"><rect x="24" y="358" width="928" height="68" rx="12"/>
+      <text class="t" x="48" y="388">State &amp; knowledge</text>
+      <text class="k" x="48" y="408">persistence</text>
+      <g class="pk"><title>store: canonical state, the ledger, outboxes and migrations (ADR-0021)</title><rect x="272" y="379" width="54" height="26" rx="6"/><text x="299" y="396.5" text-anchor="middle">store</text></g>
+      <g class="pk"><title>graph: the estate graph pipeline and deterministic retrieval (ADR-0007)</title><rect x="334" y="379" width="54" height="26" rx="6"/><text x="361" y="396.5" text-anchor="middle">graph</text></g>
+      <g class="pk"><title>learning: reviewable notes, projected once a person confirms them (ADR-0019)</title><rect x="396" y="379" width="76" height="26" rx="6"/><text x="434" y="396.5" text-anchor="middle">learning</text></g>
+      <g class="pk"><title>corpus: historical workbooks and curated regression cases</title><rect x="480" y="379" width="61" height="26" rx="6"/><text x="510.5" y="396.5" text-anchor="middle">corpus</text></g>
+      <text class="s" x="580" y="388"><tspan>canonical store and ledger, knowledge graph,</tspan><tspan x="580" dy="18">confirmed learning and corpus</tspan></text></g>
+    <g class="nd lyr" id="ly_integration"><rect x="24" y="434" width="928" height="68" rx="12"/>
+      <text class="t" x="48" y="464">Integration</text>
+      <text class="k" x="48" y="484">ports and driven adapters</text>
+      <g class="pk"><title>ports: the contracts every plugin fills (ADR-0002)</title><rect x="272" y="455" width="54" height="26" rx="6"/><text x="299" y="472.5" text-anchor="middle">ports</text></g>
+      <g class="pk"><title>adapters: vendor connectors, imported only by the composition root</title><rect x="334" y="455" width="76" height="26" rx="6"/><text x="372" y="472.5" text-anchor="middle">adapters</text></g>
+      <g class="pk"><title>composition: the composition root: every seam a configured plugin (ADR-0023, ADR-0027)</title><rect x="418" y="455" width="97" height="26" rx="6"/><text x="466.5" y="472.5" text-anchor="middle">composition</text></g>
+      <text class="s" x="580" y="464"><tspan>contracts, vendor connectors</tspan><tspan x="580" dy="18">and the one root that wires them</tspan></text></g>
+    <g class="nd pln" id="pl_trust"><rect x="964" y="54" width="142" height="448" rx="12"/>
+      <text class="t" x="1035" y="84" text-anchor="middle">Trust</text>
+      <text class="s" x="1035" y="106" text-anchor="middle"><tspan x="1035">nothing untrusted</tspan><tspan x="1035" dy="15">drives an effect</tspan></text>
+      <text class="k" x="1035" y="172" text-anchor="middle">enforced by</text>
+      <g class="ctl"><title>domain.redaction</title><rect x="976" y="180" width="118" height="19" rx="6"/><text x="1035" y="193.5" text-anchor="middle">redaction</text></g>
+      <g class="ctl"><title>domain.fence</title><rect x="976" y="203" width="118" height="19" rx="6"/><text x="1035" y="216.5" text-anchor="middle">fence</text></g>
+      <g class="ctl"><title>domain.authorisation</title><rect x="976" y="226" width="118" height="19" rx="6"/><text x="1035" y="239.5" text-anchor="middle">authorisation</text></g>
+      <g class="ctl"><title>domain.runbook_match</title><rect x="976" y="249" width="118" height="19" rx="6"/><text x="1035" y="262.5" text-anchor="middle">runbook_match</text></g>
+      <g class="ctl"><title>adapters.tool_gate</title><rect x="976" y="272" width="118" height="19" rx="6"/><text x="1035" y="285.5" text-anchor="middle">tool_gate</text></g>
+      <g class="ctl"><title>adapters.guard</title><rect x="976" y="295" width="118" height="19" rx="6"/><text x="1035" y="308.5" text-anchor="middle">guard</text></g>
+      <g class="ctl"><title>relay.gate</title><rect x="976" y="318" width="118" height="19" rx="6"/><text x="1035" y="331.5" text-anchor="middle">gate</text></g>
+      <g class="ctl"><title>relay.verify</title><rect x="976" y="341" width="118" height="19" rx="6"/><text x="1035" y="354.5" text-anchor="middle">verify</text></g>
+      <g class="ctl"><title>relay.close</title><rect x="976" y="364" width="118" height="19" rx="6"/><text x="1035" y="377.5" text-anchor="middle">close</text></g>
+      <line class="div" x1="976" y1="392" x2="1094" y2="392"/>
+      <text class="k" x="1035" y="410" text-anchor="middle">own packages</text>
+      <text class="nopk" x="1035" y="432" text-anchor="middle"><tspan>none; its controls</tspan><tspan x="1035" dy="15">sit in every layer</tspan></text>
+    </g>
+    <g class="nd pln" id="pl_observability"><rect x="1118" y="54" width="142" height="448" rx="12"/>
+      <text class="t" x="1189" y="84" text-anchor="middle">Observability</text>
+      <text class="s" x="1189" y="106" text-anchor="middle"><tspan x="1189">the framework</tspan><tspan x="1189" dy="15">reports on itself</tspan><tspan x="1189" dy="15">from its own ledger</tspan></text>
+      <text class="k" x="1189" y="172" text-anchor="middle">enforced by</text>
+      <g class="ctl"><title>telemetry.projection</title><rect x="1130" y="180" width="118" height="19" rx="6"/><text x="1189" y="193.5" text-anchor="middle">projection</text></g>
+      <g class="ctl"><title>telemetry.export</title><rect x="1130" y="203" width="118" height="19" rx="6"/><text x="1189" y="216.5" text-anchor="middle">export</text></g>
+      <g class="ctl"><title>adapters.otlp</title><rect x="1130" y="226" width="118" height="19" rx="6"/><text x="1189" y="239.5" text-anchor="middle">otlp</text></g>
+      <g class="ctl"><title>structured_log</title><rect x="1130" y="249" width="118" height="19" rx="6"/><text x="1189" y="262.5" text-anchor="middle">structured_log</text></g>
+      <line class="div" x1="1130" y1="392" x2="1248" y2="392"/>
+      <text class="k" x="1189" y="410" text-anchor="middle">own packages</text>
+      <g class="pk"><title>telemetry: the ledger projected as OTLP metrics and relay.* spans (ADR-0025)</title><rect x="1130" y="418" width="118" height="19" rx="6"/><text x="1189" y="431.5" text-anchor="middle">telemetry</text></g>
+      <g class="pk"><title>structured_log: bounded logs for what the ledger cannot hold (ADR-0020)</title><rect x="1130" y="441" width="118" height="19" rx="6"/><text x="1189" y="454.5" text-anchor="middle">structured_log</text></g>
+    </g>
+    <g class="nd pln" id="pl_governance"><rect x="1272" y="54" width="142" height="448" rx="12"/>
+      <text class="t" x="1343" y="84" text-anchor="middle">Governance</text>
+      <text class="s" x="1343" y="106" text-anchor="middle"><tspan x="1343">every live effect</tspan><tspan x="1343" dy="15">is explicit</tspan><tspan x="1343" dy="15">configuration, scored</tspan><tspan x="1343" dy="15">and gated in CI</tspan></text>
+      <text class="k" x="1343" y="172" text-anchor="middle">enforced by</text>
+      <g class="ctl"><title>config</title><rect x="1284" y="180" width="118" height="19" rx="6"/><text x="1343" y="193.5" text-anchor="middle">config</text></g>
+      <g class="ctl"><title>scoring.scorecard</title><rect x="1284" y="203" width="118" height="19" rx="6"/><text x="1343" y="216.5" text-anchor="middle">scorecard</text></g>
+      <g class="ctl"><title>scoring.autonomy</title><rect x="1284" y="226" width="118" height="19" rx="6"/><text x="1343" y="239.5" text-anchor="middle">autonomy</text></g>
+      <g class="ctl"><title>architecture</title><rect x="1284" y="249" width="118" height="19" rx="6"/><text x="1343" y="262.5" text-anchor="middle">architecture</text></g>
+      <line class="div" x1="1284" y1="392" x2="1402" y2="392"/>
+      <text class="k" x="1343" y="410" text-anchor="middle">own packages</text>
+      <g class="pk"><title>scoring: the scorecard and the autonomy report (ADR-0014)</title><rect x="1284" y="418" width="118" height="19" rx="6"/><text x="1343" y="431.5" text-anchor="middle">scoring</text></g>
+      <g class="pk"><title>config: explicit operator configuration; every live effect is opt-in</title><rect x="1284" y="441" width="118" height="19" rx="6"/><text x="1343" y="454.5" text-anchor="middle">config</text></g>
+      <g class="pk"><title>architecture: this manifest (ADR-0026)</title><rect x="1284" y="464" width="118" height="19" rx="6"/><text x="1343" y="477.5" text-anchor="middle">architecture</text></g>
+    </g>
+    <g id="ea_monitor_analyse" class="eg"><path d="M185,634 L201,634" marker-end="url(#ah2)"/></g>
+    <g id="ea_analyse_plan" class="eg"><path d="M365,634 L381,634" marker-end="url(#ah2)"/></g>
+    <g id="ea_plan_execute" class="eg"><path d="M545,634 L561,634" marker-end="url(#ah2)"/></g>
+    <g id="ea_execute_report" class="eg"><path d="M725,634 L741,634" marker-end="url(#ah2)"/></g>
+    <g id="ea_report_knowledge" class="eg"><path d="M905,634 L921,634" marker-end="url(#ah2)"/></g>
+    <g id="ea_loop" class="eg"><path d="M1003,692 L1003,718 L103,718 L103,695" marker-end="url(#ah2)"/></g>
+    <text class="lbl" id="la_loop" x="553" y="738" text-anchor="middle">the loop closes · confirmed learning becomes evidence for the next ticket</text>
+    <g class="nd phs" id="ph_monitor"><rect x="24" y="578" width="158" height="112" rx="12"/>
+      <text class="t" x="103" y="605" text-anchor="middle">Monitor</text>
+      <text class="hp" x="103" y="624" text-anchor="middle">admit</text>
+      <text class="s" x="103" y="646" text-anchor="middle"><tspan x="103">admission policy: only</tspan><tspan x="103" dy="15">explicitly assigned,</tspan><tspan x="103" dy="15">policy-matching work</tspan></text></g>
+    <g class="nd phs model" id="ph_analyse"><rect x="204" y="578" width="158" height="112" rx="12"/>
+      <text class="t" x="283" y="605" text-anchor="middle">◆ Analyse</text>
+      <text class="hp" x="283" y="624" text-anchor="middle">dispatch · investigate</text>
+      <text class="s" x="283" y="646" text-anchor="middle"><tspan x="283">a leased, bounded</tspan><tspan x="283" dy="15">investigation over</tspan><tspan x="283" dy="15">fenced evidence</tspan></text></g>
+    <g class="nd phs" id="ph_plan"><rect x="384" y="578" width="158" height="112" rx="12"/>
+      <text class="t" x="463" y="605" text-anchor="middle">Plan</text>
+      <text class="hp" x="463" y="624" text-anchor="middle">plan</text>
+      <text class="s" x="463" y="646" text-anchor="middle"><tspan x="463">a trusted runbook's</tspan><tspan x="463" dy="15">predicate, never the</tspan><tspan x="463" dy="15">model's condition</tspan></text></g>
+    <g class="nd phs act" id="ph_execute"><rect x="564" y="578" width="158" height="112" rx="12"/>
+      <text class="t" x="643" y="605" text-anchor="middle">Execute</text>
+      <text class="hp" x="643" y="624" text-anchor="middle">gate · execute · verify</text>
+      <text class="s" x="643" y="646" text-anchor="middle"><tspan x="643">stop, cap, policy and</tspan><tspan x="643" dy="15">approval; one effect;</tspan><tspan x="643" dy="15">unanimous recovery signals</tspan></text></g>
+    <g class="nd phs proven" id="ph_report"><rect x="744" y="578" width="158" height="112" rx="12"/>
+      <text class="t" x="823" y="605" text-anchor="middle">Report</text>
+      <text class="hp" x="823" y="624" text-anchor="middle">publish · close</text>
+      <text class="s" x="823" y="646" text-anchor="middle"><tspan x="823">the outbox writes back</tspan><tspan x="823" dy="15">only what is</tspan><tspan x="823" dy="15">durably true</tspan></text></g>
+    <g class="nd phs" id="ph_knowledge"><rect x="924" y="578" width="158" height="112" rx="12"/>
+      <text class="t" x="1003" y="605" text-anchor="middle">Knowledge</text>
+      <text class="hp" x="1003" y="624" text-anchor="middle">learn · export</text>
+      <text class="s" x="1003" y="646" text-anchor="middle"><tspan x="1003">a named person confirms</tspan><tspan x="1003" dy="15">learning; the ledger</tspan><tspan x="1003" dy="15">becomes telemetry</tspan></text></g>
+    <g class="nd aut" id="n_autonomy"><rect x="1100" y="578" width="316" height="154" rx="12"/>
+      <text class="t" x="1120" y="605">Autonomy</text>
+      <text class="k" x="1120" y="623">TM Forum autonomous networks</text>
+      <g class="lvl"><rect x="1120" y="638" width="40" height="26" rx="6"/><text x="1140" y="655" text-anchor="middle">L0</text></g>
+      <g class="lvl cur"><rect x="1167" y="638" width="40" height="26" rx="6"/><text x="1187" y="655" text-anchor="middle">L1</text></g>
+      <g class="lvl cur"><rect x="1214" y="638" width="40" height="26" rx="6"/><text x="1234" y="655" text-anchor="middle">L2</text></g>
+      <g class="lvl opt"><rect x="1261" y="638" width="40" height="26" rx="6"/><text x="1281" y="655" text-anchor="middle">L3</text></g>
+      <g class="lvl"><rect x="1308" y="638" width="40" height="26" rx="6"/><text x="1328" y="655" text-anchor="middle">L4</text></g>
+      <g class="lvl"><rect x="1355" y="638" width="40" height="26" rx="6"/><text x="1375" y="655" text-anchor="middle">L5</text></g>
+      <text class="lvk cur" x="1210.5" y="680" text-anchor="middle">default</text>
+      <text class="lvk opt" x="1281" y="680" text-anchor="middle">RB-052 on</text>
+      <text class="s" x="1120" y="702"><tspan>By default a person decides and acts.</tspan><tspan x="1120" dy="16">No production deployment runs L3 yet.</tspan></text></g>
+    <circle class="pkt" r="6.5" cx="0" cy="0"/>
+  </svg>
+  </section>
+
+  <!-- ============================ SLIDE 3 ============================ -->
+  <section class="s3" id="s3" hidden>
+  <svg id="svg-flow" viewBox="0 0 1440 780" role="img"
+       aria-label="How a ticket becomes an outcome through eleven Relay hops: admit, dispatch, investigate (the only hop that consults a model), plan, gate, then execute and verify or escalate, publish and close, with learn and export alongside.">
     <defs>
       <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
         <path d="M0,0 L10,5 L0,10 z" fill="var(--edge)"/>
@@ -283,11 +545,11 @@ kbd{color:var(--muted)}
     <rect class="band" x="24" y="56"  width="1392" height="120" rx="13"/>
     <text class="bandtxt" x="40" y="46">Evidence · read only, and learning a person reviews</text>
     <rect class="band" x="24" y="214" width="1392" height="130" rx="13"/>
-    <text class="bandtxt" x="40" y="204">Relay control loop · the model runs once, at ◆</text>
+    <text class="bandtxt" x="40" y="204">Relay control loop · a model is consulted only at ◆</text>
     <rect class="band" x="24" y="382" width="1392" height="206" rx="13"/>
-    <text class="bandtxt" x="40" y="372">Outcome · exactly one path changes the estate</text>
+    <text class="bandtxt" x="40" y="372">Outcome · one path changes the estate · off by default</text>
     <rect class="band" x="24" y="626" width="1392" height="120" rx="13"/>
-    <text class="bandtxt" x="40" y="616">Self-observability · every hop above is a relay.* span</text>
+    <text class="bandtxt" x="40" y="616">Self-observability · every timed hop above is a relay.* span</text>
 
     <!-- edges -->
     <g id="e_t_a" class="eg"><path d="M193,279 L233,279" marker-end="url(#ah)"/></g>
@@ -312,12 +574,12 @@ kbd{color:var(--muted)}
     <text class="lbl" id="l_t_a" x="215" y="226" text-anchor="middle">labelled</text>
     <text class="lbl" id="l_a_d" x="417" y="226" text-anchor="middle">admitted</text>
     <text class="lbl" id="l_d_i" x="619" y="226" text-anchor="middle">leased</text>
-    <text class="lbl" id="l_i_r" x="821" y="226" text-anchor="middle">ask once</text>
+    <text class="lbl" id="l_i_r" x="821" y="226" text-anchor="middle">hypothesise · decide</text>
     <text class="lbl" id="l_r_p" x="1023" y="226" text-anchor="middle">propose</text>
     <text class="lbl" id="l_p_g" x="1225" y="226" text-anchor="middle">matched</text>
     <text class="lbl" id="l_n_k" x="518" y="108" text-anchor="middle">reviewed</text>
     <text class="lbl" id="l_k_i" x="668" y="202" text-anchor="end">retrieve</text>
-    <text class="lbl" id="l_y_i" x="830" y="202" text-anchor="start">probe, only if asked</text>
+    <text class="lbl" id="l_y_i" x="830" y="202" text-anchor="start">problems, if mapped</text>
     <text class="lbl" id="l_g_x" x="1336" y="370" text-anchor="start">approved</text>
     <text class="lbl" id="l_p_e" x="1114" y="370" text-anchor="end">no runbook</text>
     <text class="lbl" id="l_g_e" x="1240" y="382" text-anchor="start">refused</text>
@@ -336,9 +598,9 @@ kbd{color:var(--muted)}
       <text class="s" x="655" y="122" text-anchor="middle">3 months of resolved incidents</text>
       <text class="k" x="655" y="142" text-anchor="middle">PostgreSQL</text></g>
     <g class="nd" id="n_dt"><rect x="790" y="74" width="190" height="84" rx="12"/>
-      <text class="t" x="885" y="102" text-anchor="middle">Dynatrace nonprod</text>
-      <text class="s" x="885" y="122" text-anchor="middle">problems for the mapped entity</text>
-      <text class="k" x="885" y="142" text-anchor="middle">read only</text></g>
+      <text class="t" x="885" y="102" text-anchor="middle">Observability nonprod</text>
+      <text class="s" x="885" y="122" text-anchor="middle">read only, for the mapped entity</text>
+      <text class="k" x="885" y="142" text-anchor="middle">dynatrace plugin</text></g>
     <g class="nd" id="n_ticket"><rect x="35" y="232" width="158" height="94" rx="12"/>
       <text class="t" x="114" y="262" text-anchor="middle">Ticket</text>
       <text class="s" x="114" y="282" text-anchor="middle">a person labels it</text>
@@ -353,19 +615,19 @@ kbd{color:var(--muted)}
       <text class="k" x="518" y="306" text-anchor="middle">relay.dispatch</text></g>
     <g class="nd" id="n_inv"><rect x="641" y="232" width="158" height="94" rx="12"/>
       <text class="t" x="720" y="262" text-anchor="middle">Investigate</text>
-      <text class="s" x="720" y="282" text-anchor="middle">loops until it has a cause</text>
+      <text class="s" x="720" y="282" text-anchor="middle">at most three rounds</text>
       <text class="k" x="720" y="306" text-anchor="middle">relay.investigate</text></g>
     <g class="nd model" id="n_reason"><rect x="843" y="232" width="158" height="94" rx="12"/>
       <text class="t" x="922" y="262" text-anchor="middle">◆ Reason</text>
       <text class="s" x="922" y="282" text-anchor="middle">proposes a likely cause</text>
-      <text class="k" x="922" y="306" text-anchor="middle">copilot sdk</text></g>
+      <text class="k" x="922" y="306" text-anchor="middle">model plugin</text></g>
     <g class="nd" id="n_plan"><rect x="1045" y="232" width="158" height="94" rx="12"/>
       <text class="t" x="1124" y="262" text-anchor="middle">Plan</text>
       <text class="s" x="1124" y="282" text-anchor="middle">matches a trusted runbook</text>
       <text class="k" x="1124" y="306" text-anchor="middle">runbook predicate</text></g>
     <g class="nd act" id="n_gate"><rect x="1247" y="232" width="158" height="94" rx="12"/>
       <text class="t" x="1326" y="262" text-anchor="middle">Gate</text>
-      <text class="s" x="1326" y="282" text-anchor="middle">stop · hourly cap · change</text>
+      <text class="s" x="1326" y="282" text-anchor="middle">stop · cap · policy · change</text>
       <text class="k" x="1326" y="306" text-anchor="middle">relay.gate</text></g>
     <g class="nd act" id="n_exec"><rect x="1247" y="400" width="158" height="76" rx="12"/>
       <text class="t" x="1326" y="428" text-anchor="middle">Execute</text>
@@ -385,7 +647,7 @@ kbd{color:var(--muted)}
       <text class="k" x="790" y="538" text-anchor="middle">relay.publish · durable outbox</text></g>
     <g class="nd proven" id="n_close"><rect x="380" y="470" width="200" height="88" rx="12"/>
       <text class="t" x="480" y="498" text-anchor="middle">Close</text>
-      <text class="s" x="480" y="518" text-anchor="middle">only a verified resolution</text>
+      <text class="s" x="480" y="518" text-anchor="middle">verified fix, or advisory task</text>
       <text class="k" x="480" y="538" text-anchor="middle">policy predicate</text></g>
     <g class="nd" id="n_ledger"><rect x="300" y="648" width="200" height="82" rx="12"/>
       <text class="t" x="400" y="676" text-anchor="middle">Event ledger</text>
@@ -393,12 +655,12 @@ kbd{color:var(--muted)}
       <text class="k" x="400" y="716" text-anchor="middle">PostgreSQL</text></g>
     <g class="nd" id="n_otel"><rect x="640" y="648" width="220" height="82" rx="12"/>
       <text class="t" x="750" y="676" text-anchor="middle">Export</text>
-      <text class="s" x="750" y="696" text-anchor="middle">metrics, and a span per hop</text>
+      <text class="s" x="750" y="696" text-anchor="middle">metrics, and a span per timed hop</text>
       <text class="k" x="750" y="716" text-anchor="middle">relay.export · OTLP</text></g>
     <g class="nd" id="n_dta"><rect x="1000" y="648" width="220" height="82" rx="12"/>
-      <text class="t" x="1110" y="676" text-anchor="middle">Dynatrace</text>
+      <text class="t" x="1110" y="676" text-anchor="middle">OTLP backend</text>
       <text class="s" x="1110" y="696" text-anchor="middle">dashboards, alerts, one trace</text>
-      <text class="k" x="1110" y="716" text-anchor="middle">separate tenant</text></g>
+      <text class="k" x="1110" y="716" text-anchor="middle">dynatrace · separate tenant</text></g>
     <circle id="pkt" class="pkt" r="6.5" cx="0" cy="0"/>
   </svg>
   </section>
@@ -408,45 +670,59 @@ kbd{color:var(--muted)}
   <footer class="rail foot">
     <div class="progress"><i id="bar"></i></div>
     <p class="cap" id="cap"></p>
-    <p class="keys"><kbd>space</kbd> play · <kbd>←→</kbd> step · <kbd>r</kbd> restart · <kbd>f</kbd> full screen</p>
+    <p class="keys"><kbd>space</kbd> play · <kbd>←→</kbd> step · <kbd>r</kbd> restart · <kbd>t</kbd> theme · <kbd>f</kbd> full screen</p>
   </footer>
 </div>
 
 <script>
-/* Frame 0 is slide 1. Frames 1..13 build slide 2, and the story accumulates:
-   what a step lights stays lit, so the last frame shows the whole system. */
+/* Frame 0 is slide 1. Frames 1..8 build slide 2 and frames 9..21 build slide 3. On
+   each, the story accumulates: what a step lights stays lit, so a slide's last frame
+   shows all of it. */
 const FRAMES = [
-  {"slide": 1, "cap": "<b>Two slides.</b> What it is built on, then what happens to a single ticket."},
-  {"slide": 2, "all": true, "on": [], "cap": "<b>The whole path.</b> Eleven Relay hops take one ticket left to right, then back to the ticket it came from."},
-  {"slide": 2, "on": ["n_ticket", "n_admit"], "eg": "e_t_a", "cap": "<b>Admit.</b> A person labels the ticket, in Jira or Helix — the tracker is a plugin. Policy is re-checked and the claim is read back before it is announced. ZTO never raises its own work."},
-  {"slide": 2, "on": ["n_admit", "n_dispatch"], "eg": "e_a_d", "cap": "<b>Dispatch.</b> The scheduler leases the incident and starts one detached worker. Run as many servers as you like; only one can hold the lease."},
-  {"slide": 2, "on": ["n_dispatch", "n_inv", "n_corpus", "n_dt"], "eg": "e_d_i", "extra": ["e_k_i", "e_y_i"], "cap": "<b>Investigate.</b> LangGraph gathers only what it may cite: three months of resolved incidents, and Dynatrace nonprod problems for the mapped entity, read only."},
-  {"slide": 2, "on": ["n_inv", "n_reason"], "eg": "e_i_r", "cap": "<b>The one model call.</b> Copilot reads the fenced evidence pack and proposes a cause. It has no way to act, and nothing downstream trusts it yet."},
-  {"slide": 2, "on": ["n_reason", "n_plan"], "eg": "e_r_p", "cap": "<b>Plan.</b> The proposal is matched against trusted runbooks. The runbook's own predicate decides whether it applies — never the model's."},
-  {"slide": 2, "on": ["n_plan", "n_gate"], "eg": "e_p_g", "cap": "<b>Gate.</b> Before any new effect: the emergency stop, the hourly cap, and an approved change. A pending change waits; a refused one stops the run."},
-  {"slide": 2, "on": ["n_gate", "n_exec", "n_verify"], "eg": "e_g_x", "extra": ["e_x_v"], "cap": "<b>Execute, then verify.</b> Snapshot, reserve in the outbox, apply once. Resolved needs a confirmed receipt and every declared recovery signal to agree."},
-  {"slide": 2, "on": ["n_plan", "n_gate", "n_esc"], "eg": "e_p_e", "extra": ["e_g_e"], "cap": "<b>Escalated or refused.</b> No runbook matched, or change control refused the change. A person gets the evidence it gathered. Nothing is fabricated to look like a fix."},
-  {"slide": 2, "on": ["n_verify", "n_esc", "n_pub", "n_close", "n_ticket"], "eg": "e_v_u", "extra": ["e_e_u", "e_u_c", "e_c_t"], "cap": "<b>Publish, then close.</b> Every write goes through a durable outbox: reserve, send, read back. Only a verified resolution closes the ticket. An uncertain send is reconciled, never retried."},
-  {"slide": 2, "on": ["n_learn", "n_corpus"], "eg": "e_n_k", "cap": "<b>Learn.</b> Settled assessments become reviewable notes. A person approves one before any investigation can cite it."},
-  {"slide": 2, "on": ["n_ledger", "n_otel", "n_dta"], "eg": "e_l_o", "extra": ["e_o_z"], "cap": "<b>Export.</b> Every hop wrote to an append-only ledger. Metrics and one <code>relay.*</code> span per hop are projected from it — one trace per incident, not a second source of truth."},
-  {"slide": 2, "done": true, "on": [], "cap": "<b>One consent, one model call, one gate, one durable receipt.</b> Eleven hops, each a plugin seam: swap Jira for Helix without touching the loop."}
+  {"slide": 1, "cap": "<b>Three slides.</b> What it is built on, how it is layered, then what happens to a single ticket."},
+  {"slide": 2, "all": true, "on": [], "cap": "<b>The reference architecture.</b> Six layers, three planes and one closed loop, declared once as data in <code>architecture.py</code>. The boundary gate enforces its import rules, <code>framework</code> prints it, and tests hold the guides and this slide to it (ADR-0026)."},
+  {"slide": 2, "on": ["ly_experience", "ly_orchestration"], "cap": "<b>Experience, then Orchestration.</b> The CLI is the driving adapter: it checks the configuration, then drives one run cycle itself or serves the same cycle to a durable Temporal worker, and decides nothing about an incident. Relay's eleven hops and the scheduler are the application service; only the investigate hop reaches a model, through Cognition."},
+  {"slide": 2, "on": ["ly_cognition", "ly_domain"], "cap": "<b>Cognition, then Domain.</b> Cognition runs one bounded investigation per incident, on the configured engine, and is the only layer that asks a model; nothing downstream trusts its answer. The domain is the canonical model — types, lifecycle, policy, the fence — and it imports nothing."},
+  {"slide": 2, "on": ["ly_state", "ly_integration"], "cap": "<b>State, then Integration.</b> The store is the system of record, deliberately not behind a port: a lease, its events and an outbox row commit together. Every external system sits behind a port, and only the composition root builds an adapter: the plugin configuration names, built in or installed."},
+  {"slide": 2, "on": ["pl_trust", "pl_observability", "pl_governance"], "cap": "<b>Three planes cross every layer.</b> Trust: nothing untrusted drives an effect. Observability: the framework reports on itself from its own ledger. Governance: every live effect is explicit configuration, scored and gated in CI."},
+  {"slide": 2, "on": ["ph_monitor", "ph_analyse", "ph_plan", "ph_execute", "ph_report", "ph_knowledge"], "eg": "ea_loop", "extra": ["ea_monitor_analyse", "ea_analyse_plan", "ea_plan_execute", "ea_execute_report", "ea_report_knowledge"], "cap": "<b>One closed loop: MAPE-K.</b> Monitor admits, Analyse investigates, Plan matches a trusted runbook, Execute gates, applies and verifies, Report writes back, Knowledge learns. The model sits in Analyse only; deterministic code or a named person decides every step after it."},
+  {"slide": 2, "on": ["n_autonomy"], "cap": "<b>Autonomy, stated rather than implied.</b> By default a person decides and acts on every assessment: between TM Forum levels L1 and L2. Enabled, the RB-052 redrive runs at L3, behind the stop, the hourly cap, the configured Cedar policy and, when a change system is plugged in, an approved change. No production deployment runs it yet."},
+  {"slide": 2, "done": true, "on": [], "cap": "<b>The manifest is the architecture.</b> Every import between packages is one the manifest permits, or one of eight exceptions, each with its ADR. <code>just backend-check</code> fails on anything else and on a cycle, so what <code>framework</code> prints is what the code does."},
+  {"slide": 3, "all": true, "on": [], "cap": "<b>The whole path.</b> Eleven Relay hops take one ticket left to right, then back to the ticket it came from."},
+  {"slide": 3, "on": ["n_ticket", "n_admit"], "eg": "e_t_a", "cap": "<b>Admit.</b> A person labels the ticket, in Jira or Helix — the tracker is a plugin. Policy is re-checked and the claim is read back before it is announced. ZTO never raises its own work."},
+  {"slide": 3, "on": ["n_admit", "n_dispatch"], "eg": "e_a_d", "cap": "<b>Dispatch.</b> The scheduler leases the incident and starts one detached worker. One lease per incident: a second dispatcher on the same store cannot claim work already running."},
+  {"slide": 3, "on": ["n_dispatch", "n_inv", "n_corpus", "n_dt"], "eg": "e_d_i", "extra": ["e_k_i", "e_y_i"], "cap": "<b>Investigate.</b> The configured engine, LangGraph or a plain sequential loop, gathers only what it may cite: three months of resolved incidents, and read-only nonprod problems for the mapped entity from the observability plugin, Dynatrace today."},
+  {"slide": 3, "on": ["n_inv", "n_reason"], "eg": "e_i_r", "cap": "<b>The only model seam.</b> Whichever model is configured — Copilot, Claude or an OpenAI-compatible endpoint — reads the same fenced evidence pack, hypothesises, then decides: at most three rounds before a person is asked. Every provider is tool-less, and nothing downstream trusts it yet."},
+  {"slide": 3, "on": ["n_reason", "n_plan"], "eg": "e_r_p", "cap": "<b>Plan.</b> The proposal is matched against trusted runbooks. The runbook's own predicate decides whether it applies — never the model's. With execution off, the default, the match is posted to the ticket as a preview."},
+  {"slide": 3, "on": ["n_plan", "n_gate"], "eg": "e_p_g", "cap": "<b>Gate.</b> Before any new effect: the emergency stop, the hourly cap, the Cedar policy when one is configured — deny-only: a cooldown per target, a circuit breaker after repeated failures — and, when a change system is plugged in, an approved change. A pending change waits; only a refused one is final."},
+  {"slide": 3, "on": ["n_gate", "n_exec", "n_verify"], "eg": "e_g_x", "extra": ["e_x_v"], "cap": "<b>Execute, then verify.</b> Only once an operator enables execution: snapshot, reserve in the outbox, apply once. Resolved needs a confirmed receipt and every declared recovery signal to agree."},
+  {"slide": 3, "on": ["n_plan", "n_gate", "n_esc"], "eg": "e_p_e", "extra": ["e_g_e"], "cap": "<b>Escalated or refused.</b> No runbook matched, or change control refused the change. A person gets the evidence it gathered. Nothing is fabricated to look like a fix."},
+  {"slide": 3, "on": ["n_verify", "n_esc", "n_pub", "n_close", "n_ticket"], "eg": "e_v_u", "extra": ["e_e_u", "e_u_c", "e_c_t"], "cap": "<b>Publish, then close.</b> Every write goes through a durable outbox: reserve, send, read back. A real incident closes only on a verified resolution; an advisory task only when policy permits. An uncertain send is reconciled, never retried."},
+  {"slide": 3, "on": ["n_learn", "n_corpus"], "eg": "e_n_k", "cap": "<b>Learn.</b> Settled assessments become reviewable notes. A person approves one before any investigation can cite it."},
+  {"slide": 3, "on": ["n_ledger", "n_otel", "n_dta"], "eg": "e_l_o", "extra": ["e_o_z"], "cap": "<b>Export.</b> Every hop wrote to an append-only ledger. Metrics and a <code>relay.*</code> span for every timed hop are projected from it — plan and close are instants, not intervals. One trace per incident, not a second source of truth."},
+  {"slide": 3, "done": true, "on": [], "cap": "<b>One consent, one model seam, one gate, one durable receipt.</b> Eleven hops, ten plugin seams, each chosen by configuration: swap Jira for Helix, or Copilot for Claude, without touching the loop. Run it once, or on a durable schedule on self-hosted, open-source Temporal: the same cycle, under the same gate."}
 ];
 
 const $ = s => document.querySelector(s);
 const byId = id => document.getElementById(id);
-const svg = $("#svg"), pkt = $("#pkt");
-let i = 0, playing = false, timer = null, raf = null;
+/* Slides 2 and 3 are drawn. Each has its own marks and its own packet. */
+const SVGS = {2: byId("svg-arch"), 3: byId("svg-flow")};
+const firstOf = n => FRAMES.findIndex(f => f.slide === n);
+let i = 0, playing = false, timer = null, raf = null, fly = null;
 
 function edgesOf(f){ return [f.eg, ...(f.extra||[])].filter(Boolean); }
 
 function clearMarks(){
-  svg.querySelectorAll(".nd,.eg,.lbl").forEach(el => el.classList.remove("on","seen","preview"));
+  Object.values(SVGS).forEach(s => {
+    s.querySelectorAll(".nd,.eg,.lbl").forEach(el => el.classList.remove("on","seen","preview"));
+    s.querySelector(".pkt").style.opacity = 0;
+  });
   if(raf) cancelAnimationFrame(raf);
-  pkt.style.opacity = 0;
+  clearTimeout(fly);
 }
 
-function flyAlong(edgeId){
-  const p = byId(edgeId)?.querySelector("path");
+function flyAlong(svg, edgeId){
+  const p = byId(edgeId)?.querySelector("path"), pkt = svg.querySelector(".pkt");
   if(!p || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   const len = p.getTotalLength(), dur = Math.min(1500, 420 + len * 1.5);
   let t0 = null;
@@ -470,20 +746,20 @@ function replayIntro(){
 
 function render(prevIndex){
   const f = FRAMES[i];
-  const onSlide1 = f.slide === 1;
 
-  $("#s1").hidden = !onSlide1;
-  $("#s2").hidden = onSlide1;
-  $("#c1").setAttribute("aria-current", String(onSlide1));
-  $("#c2").setAttribute("aria-current", String(!onSlide1));
+  [1, 2, 3].forEach(n => {
+    byId("s" + n).hidden = f.slide !== n;
+    byId("c" + n).setAttribute("aria-current", String(f.slide === n));
+  });
   $("#count").textContent = (i + 1) + " / " + FRAMES.length;
   $("#bar").style.width = ((i + 1) / FRAMES.length * 100) + "%";
   $("#cap").innerHTML = f.cap || "";
 
-  if(onSlide1){ if(prevIndex !== 0) replayIntro(); return; }
-
   clearMarks();
-  for(let k = 1; k < i; k++){
+  if(f.slide === 1){ if(prevIndex !== 0) replayIntro(); return; }
+
+  const svg = SVGS[f.slide];
+  for(let k = firstOf(f.slide); k < i; k++){
     FRAMES[k].on.forEach(id => byId(id)?.classList.add("seen"));
     edgesOf(FRAMES[k]).forEach(id => {
       byId(id)?.classList.add("seen");
@@ -498,7 +774,7 @@ function render(prevIndex){
     byId(id)?.classList.add("on");
     byId("l" + id.slice(1))?.classList.add("on");
   });
-  if(f.eg) setTimeout(() => flyAlong(f.eg), 220);
+  if(f.eg) fly = setTimeout(() => flyAlong(svg, f.eg), 220);
 }
 
 function go(n){
@@ -515,11 +791,32 @@ function start(){
 $("#next").onclick = () => { stop(); go(i + 1); };
 $("#prev").onclick = () => { stop(); go(i - 1); };
 $("#play").onclick = () => playing ? stop() : (go(i === FRAMES.length - 1 ? 0 : i), start());
-$("#c1").onclick = () => { stop(); go(0); };
-$("#c2").onclick = () => { stop(); go(1); };
+[1, 2, 3].forEach(n => { byId("c" + n).onclick = () => { stop(); go(firstOf(n)); }; });
+
+/* The theme is a presenter choice, remembered per browser, and never changes the step. */
+const root = document.documentElement;
+function syncThemeButton(){
+  const light = root.dataset.theme === "light";
+  const next = light ? "dark" : "light";
+  $("#theme").title = (light ? "Dark" : "Light") + " theme (t)";
+  $("#theme").setAttribute("aria-label", "Switch to " + next + " theme");
+}
+function toggleTheme(){
+  const next = root.dataset.theme === "light" ? "dark" : "light";
+  root.classList.add("theming");
+  root.dataset.theme = next;
+  try{ localStorage.setItem("zto-theme", next); }catch(e){}
+  syncThemeButton();
+  clearTimeout(toggleTheme.t);
+  toggleTheme.t = setTimeout(() => root.classList.remove("theming"), 400);
+}
+$("#theme").onclick = toggleTheme;
+syncThemeButton();
 
 addEventListener("keydown", e => {
+  if(e.metaKey || e.ctrlKey || e.altKey) return;
   if(e.key === " "){ e.preventDefault(); $("#play").click(); }
+  else if(e.key === "t" || e.key === "T"){ toggleTheme(); }
   else if(e.key === "ArrowRight"){ stop(); go(i + 1); }
   else if(e.key === "ArrowLeft"){ stop(); go(i - 1); }
   else if(e.key === "r" || e.key === "R"){ stop(); go(0); }
