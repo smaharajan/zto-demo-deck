@@ -361,7 +361,7 @@ kbd{color:var(--muted)}
     <div class="stages">
       <div class="st reveal" style="--d:.08s">
         <span class="num">1</span>
-        <ul><li>Jira Cloud</li><li>BMC Helix ITSM</li></ul>
+        <ul><li>BMC Helix ITSM</li><li>Jira Cloud</li></ul>
         <p>A person labels a ticket. That label is the only way in.</p>
       </div>
 
@@ -571,7 +571,7 @@ kbd{color:var(--muted)}
     <g id="e_c_t" class="eg proven"><path d="M480,470 L480,360 L114,360 L114,330" marker-end="url(#ah)"/></g>
     <g id="e_l_o" class="eg"><path d="M500,689 L636,689" marker-end="url(#ah)"/></g>
     <g id="e_o_z" class="eg"><path d="M860,689 L996,689" marker-end="url(#ah)"/></g>
-    <text class="lbl" id="l_t_a" x="215" y="226" text-anchor="middle">labelled</text>
+    <text class="lbl" id="l_t_a" x="215" y="226" text-anchor="middle">assigned</text>
     <text class="lbl" id="l_a_d" x="417" y="226" text-anchor="middle">admitted</text>
     <text class="lbl" id="l_d_i" x="619" y="226" text-anchor="middle">leased</text>
     <text class="lbl" id="l_i_r" x="821" y="226" text-anchor="middle">hypothesise · decide</text>
@@ -602,9 +602,9 @@ kbd{color:var(--muted)}
       <text class="s" x="885" y="122" text-anchor="middle">read only, for the mapped entity</text>
       <text class="k" x="885" y="142" text-anchor="middle">dynatrace plugin</text></g>
     <g class="nd" id="n_ticket"><rect x="35" y="232" width="158" height="94" rx="12"/>
-      <text class="t" x="114" y="262" text-anchor="middle">Ticket</text>
-      <text class="s" x="114" y="282" text-anchor="middle">a person labels it</text>
-      <text class="k" x="114" y="306" text-anchor="middle">jira · helix plugin</text></g>
+      <text class="t" x="114" y="262" text-anchor="middle">Incident</text>
+      <text class="s" x="114" y="282" text-anchor="middle">assigned to the agent</text>
+      <text class="k" x="114" y="306" text-anchor="middle">helix · jira plugin</text></g>
     <g class="nd" id="n_admit"><rect x="237" y="232" width="158" height="94" rx="12"/>
       <text class="t" x="316" y="262" text-anchor="middle">Admit</text>
       <text class="s" x="316" y="282" text-anchor="middle">policy re-checked, claimed</text>
@@ -689,7 +689,7 @@ const FRAMES = [
   {"slide": 2, "on": ["n_autonomy"], "cap": "<b>Autonomy, stated rather than implied.</b> By default a person decides and acts on every assessment: between TM Forum levels L1 and L2. Enabled, the RB-052 redrive runs at L3, behind the stop, the hourly cap, the configured Cedar policy and, when a change system is plugged in, an approved change. No production deployment runs it yet."},
   {"slide": 2, "done": true, "on": [], "cap": "<b>The manifest is the architecture.</b> Every import between packages is one the manifest permits, or one of eight exceptions, each with its ADR. <code>just backend-check</code> fails on anything else and on a cycle, so what <code>framework</code> prints is what the code does."},
   {"slide": 3, "all": true, "on": [], "cap": "<b>The whole path.</b> Eleven Relay hops take one ticket left to right, then back to the ticket it came from."},
-  {"slide": 3, "on": ["n_ticket", "n_admit"], "eg": "e_t_a", "cap": "<b>Admit.</b> A person labels the ticket, in Jira or Helix — the tracker is a plugin. Policy is re-checked and the claim is read back before it is announced. ZTO never raises its own work."},
+  {"slide": 3, "on": ["n_ticket", "n_admit"], "eg": "e_t_a", "cap": "<b>Admit.</b> A person assigns the incident in Helix, the system of record (Jira in the nonprod demo) — the tracker is a plugin. Policy is re-checked and the claim is read back before it is announced. ZTO never raises its own work."},
   {"slide": 3, "on": ["n_admit", "n_dispatch"], "eg": "e_a_d", "cap": "<b>Dispatch.</b> The scheduler leases the incident and starts one detached worker. One lease per incident: a second dispatcher on the same store cannot claim work already running."},
   {"slide": 3, "on": ["n_dispatch", "n_inv", "n_corpus", "n_dt"], "eg": "e_d_i", "extra": ["e_k_i", "e_y_i"], "cap": "<b>Investigate.</b> The configured engine, LangGraph or a plain sequential loop, gathers only what it may cite: three months of resolved incidents, and read-only nonprod problems for the mapped entity from the observability plugin, Dynatrace today."},
   {"slide": 3, "on": ["n_inv", "n_reason"], "eg": "e_i_r", "cap": "<b>The only model seam.</b> Whichever model is configured — Copilot, Claude or an OpenAI-compatible endpoint — reads the same fenced evidence pack, hypothesises, then decides: at most three rounds before a person is asked. Every provider is tool-less, and nothing downstream trusts it yet."},
@@ -700,7 +700,7 @@ const FRAMES = [
   {"slide": 3, "on": ["n_verify", "n_esc", "n_pub", "n_close", "n_ticket"], "eg": "e_v_u", "extra": ["e_e_u", "e_u_c", "e_c_t"], "cap": "<b>Publish, then close.</b> Every write goes through a durable outbox: reserve, send, read back. A real incident closes only on a verified resolution; an advisory task only when policy permits. An uncertain send is reconciled, never retried."},
   {"slide": 3, "on": ["n_learn", "n_corpus"], "eg": "e_n_k", "cap": "<b>Learn.</b> Settled assessments become reviewable notes. A person approves one before any investigation can cite it."},
   {"slide": 3, "on": ["n_ledger", "n_otel", "n_dta"], "eg": "e_l_o", "extra": ["e_o_z"], "cap": "<b>Export.</b> Every hop wrote to an append-only ledger. Metrics and a <code>relay.*</code> span for every timed hop are projected from it — plan and close are instants, not intervals. One trace per incident, not a second source of truth."},
-  {"slide": 3, "done": true, "on": [], "cap": "<b>One consent, one model seam, one gate, one durable receipt.</b> Eleven hops, ten plugin seams, each chosen by configuration: swap Jira for Helix, or Copilot for Claude, without touching the loop. Run it once, or on a durable schedule on self-hosted, open-source Temporal: the same cycle, under the same gate."}
+  {"slide": 3, "done": true, "on": [], "cap": "<b>One consent, one model seam, one gate, one durable receipt.</b> Eleven hops, ten plugin seams, each chosen by configuration: Helix in production and Jira for the demo, Copilot or Claude, without touching the loop. Run it once, or on a durable schedule on self-hosted, open-source Temporal: the same cycle, under the same gate."}
 ];
 
 const $ = s => document.querySelector(s);
